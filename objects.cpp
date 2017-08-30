@@ -1,9 +1,9 @@
-#include "objects.h"
+#include "objects.h"	
 
-void initObjs(Collectable *objArray,double map_limits_x,double map_limits_y)
+void initObj(Collectable *objArray,int max_colllectables,double map_limits_x,double map_limits_y)
 {
-	for(int x;x<1000;x++)
+	for(int x;x<max_colllectables;x++)
 	{
-		objArray[x]= new Collectable(map_limits_x,map_limits_y);
+		(objArray[x]).setup(map_limits_x,map_limits_y);
 	}
 }

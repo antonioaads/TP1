@@ -1,11 +1,21 @@
 #include <SOIL/SOIL.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include "global.h"
 #include "player.h"
 #include "draw.h"
 #include "physics.h"
 #include "objects.h"
+
+#define WIDTH 1024
+#define HEIGHT 768
+#define FPS 60
+#define MAP_LIMITS_X 2000
+#define MAP_LIMITS_Y 2000
+#define MAX_COLLECTABLES 30
+
+// gameStates
+    #define MENU -1
+    #define GAME_0 0
 
 using namespace std;
 
@@ -15,25 +25,22 @@ using namespace std;
 
 // Instanciar classes
     Player p1(WIDTH,HEIGHT);
-    Collectable objArray[1000];
+    Collectable objArray[MAX_COLLECTABLES];
     Camera cam;
 
 // Importar texturas
     GLuint texturePlayer;
     GLuint textureBackground;
+    GLuint texturePix;
 
-void stateMachine(int gameState,int keyState[])
+void importTextures()
 {
-    switch(gameState)
-    {
-        case MENU:
-        break;
-        
-        case GAME_0:
-            // Physics
-                calculatePhysics(&p1,&cam,keyState);
-        break;
-    }
+    texturePlayer = SOIL_load_OGL_texture("tex/player.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureBackground = SOIL_load_OGL_texture("tex/background.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    texturePix = SOIL_load_OGL_texture("tex/pix.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+
+    if (texturePlayer == 0) 
+      printf("Erro do SOIL: '%s'\n", SOIL_last_result());
 }
 
 void init(){
@@ -43,10 +50,10 @@ void init(){
     // Define estado inicial de jogo
     gameState=GAME_0;
 
-    initObjects(objtArray,MAP_LIMITS_X,MAP_LIMITS_Y);
+    initObj(objArray,MAX_COLLECTABLES,(double)MAP_LIMITS_X,(double)MAP_LIMITS_Y);
 
     // Importa texturas
-    importTextures(texturePlayer,textureBackground);
+    importTextures();
 
     // Ativar blending
     glEnable( GL_BLEND );
@@ -62,6 +69,20 @@ void reshape_callback(int w,int h){
     glOrtho(0, WIDTH, 0, HEIGHT, -1.0, 1.0);
     
     glMatrixMode(GL_MODELVIEW);
+}
+
+void stateMachine(int gameState,int keyState[])
+{
+    switch(gameState)
+    {
+        case MENU:
+        break;
+        
+        case GAME_0:
+            // Physics
+                calculatePhysics(&p1,&cam,keyState,objArray,MAX_COLLECTABLES);
+        break;
+    }
 }
 
 void update_callback(int x)
@@ -93,7 +114,12 @@ void draw_callback(void){
     
     // Desenhar Background
         glColor3f(1,1,1);
-        drawObject(WIDTH/2,HEIGHT/2,0,MAP_LIMITS_X,&cam,textureBackground);
+        drawObject(WIDTH/2, HEIGHT/2,0, MAP_LIMITS_X, &cam, true, textureBackground);
+
+    // Desenha Itens
+        glColor3f(1,1,1);
+        for(int x=0;x<MAX_COLLECTABLES;x++)
+            drawObject(objArray[x].x-1000, objArray[x].y-1000,0, objArray[x].size, &cam, objArray[x].isAlive, texturePix);
 
     // Desenhar Player
         glColor3f(1, 1, 1);

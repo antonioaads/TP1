@@ -2,7 +2,6 @@
 #define OBJECTS_H // <- ...
 
 #include <bits/stdc++.h>
-#include "global.h"
 
 /**************************/
 // your stuff goes here
@@ -12,23 +11,39 @@ class Collectable
 	public:
 		double x,y;
 		double size;
+		bool isAlive;
 
-		static double map_limits_x;
-		static double map_limits_y;
+		double map_limits_x;
+		double map_limits_y;
 
-	Collectable(double map_limits_x,double map_limits_y)
+	Collectable()
+	{
+		this->map_limits_x = 0;
+		this->map_limits_y = 0;
+
+		this->isAlive=true;
+
+		this->size=60;
+
+		this->x=(int)rand()%(int)(2000);
+		this->y=(int)rand()%(int)(2000);
+	}
+
+	void setup(double map_limits_x,double map_limits_y)
 	{
 		this->map_limits_x = map_limits_x;
 		this->map_limits_y = map_limits_y;
 
-		this->size=100;
+		this->isAlive=true;
+
+		this->size=60;
 
 		this->x=(int)rand()%(int)(map_limits_x-100);
 		this->y=(int)rand()%(int)(map_limits_y-100);
 	}
 };
 /*
-class Banana : public Collectable
+class Pixie : public Collectable
 {
 	public:
 		double multiply_speed;
@@ -40,7 +55,7 @@ class Banana : public Collectable
 };*/
 
 // function prototypes, etc.
-void initObjs(Collectable*,double,double);
+void initObj(Collectable*,int,double,double);
 // reservate names
 	//(declaration on module.c/cpp needed)
 

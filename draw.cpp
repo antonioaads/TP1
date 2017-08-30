@@ -2,20 +2,11 @@
 #include <SOIL/SOIL.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
-#include "global.h"
+#include "player.h"
 
 using namespace std;
 
-void importTextures(GLuint &texturePlayer, GLuint &textureBackground)
-{
-	texturePlayer = SOIL_load_OGL_texture("tex/player.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-	textureBackground = SOIL_load_OGL_texture("tex/background.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-
-	if (texturePlayer == 0) 
-      printf("Erro do SOIL: '%s'\n", SOIL_last_result());
-}
-
-void drawObject(double x, double y, double z, double size,Camera *cam,GLuint texture)
+void drawObject(double x, double y, double z, double size,Camera *cam, bool canDraw, GLuint texture)
 {
 	/*
 		A ideia aqui é transladar todo o fundo/objetos de acordo com o input/movimentação do player
@@ -23,6 +14,8 @@ void drawObject(double x, double y, double z, double size,Camera *cam,GLuint tex
 		transladamos uma segunda vez para utilizar a ideia de "desenhar com base no próprio sistema de coordenadas do objeto"
 	*/
 
+	if(!canDraw) return;
+	
 	size/=2;
 	
 	glPushMatrix();
@@ -57,7 +50,7 @@ void drawObject(double x, double y, double z, double size,Camera *cam,GLuint tex
 void drawPlayer(double x, double y, double z, double size, GLuint texture)
 {
 	size/=2;
-	
+
 	glPushMatrix();
 	
 		glLoadIdentity();

@@ -5,8 +5,7 @@
 // your stuff goes here
 
 // function prototypes, etc.
-void importTextures(GLuint &,GLuint &);
-void drawObject(double, double, double, double, Camera*, GLuint);
+void drawObject(double, double, double, double, Camera*, bool, GLuint);
 void drawPlayer(double, double, double, double, GLuint);
 
 // classes
