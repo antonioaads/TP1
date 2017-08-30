@@ -1,5 +1,3 @@
-//adicionando comentario teste git SSH
-
 #include <SOIL/SOIL.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
@@ -24,7 +22,7 @@ using namespace std;
     GLuint texturePlayer;
     GLuint textureBackground;
 
-void stateMachine(int gameState,int keyState[], Player p1, Camera cam)
+void stateMachine(int gameState,int keyState[])
 {
     switch(gameState)
     {
@@ -66,7 +64,7 @@ void reshape_callback(int w,int h){
 
 void update_callback(int x)
 {
-    stateMachine(gameState,keyState, p1, cam);
+    stateMachine(gameState,keyState);
     
     glutPostRedisplay();
 
