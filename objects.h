@@ -2,6 +2,7 @@
 #define OBJECTS_H // <- ...
 
 #include <bits/stdc++.h>
+#include "global.h"
 
 /**************************/
 // your stuff goes here
@@ -10,6 +11,7 @@ class Collectable
 {
 	public:
 		double x,y;
+		double size;
 
 		static double map_limits_x;
 		static double map_limits_y;
@@ -23,6 +25,19 @@ class Collectable
 		this->y=(int)rand()%(int)(map_limits_y-100);
 	}
 };
+
+class Banana : public Collectable
+{
+	public:
+		double multiply_speed;
+
+	Banana(double map_limits_x,double map_limits_y)
+	{
+		SuperClass(map_limits_x, map_limits_y);
+		this->multiply_speed=2;
+	}
+}
+
 // function prototypes, etc.
 void initObjs(Collectable*);
 // reservate names

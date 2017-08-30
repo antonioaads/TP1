@@ -2,6 +2,7 @@
 #define GLOBAL_H // <- ...
 
 #include "player.h"
+#include "objects.h"
 
 #define WIDTH 1024
 #define HEIGHT 768

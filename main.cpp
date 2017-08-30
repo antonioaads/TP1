@@ -15,7 +15,7 @@ using namespace std;
 
 // Instanciar classes
     Player p1(WIDTH,HEIGHT);
-    //Collectable objArray[1000];
+    Collectable objArray[1000];
     Camera cam;
 
 // Importar texturas
@@ -42,6 +42,8 @@ void init(){
 
     // Define estado inicial de jogo
     gameState=GAME_0;
+
+    initObjects(objtArray,MAP_LIMITS_X,MAP_LIMITS_Y);
 
     // Importa texturas
     importTextures(texturePlayer,textureBackground);
