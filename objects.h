@@ -21,25 +21,26 @@ class Collectable
 		this->map_limits_x = map_limits_x;
 		this->map_limits_y = map_limits_y;
 
+		this->size=100;
+
 		this->x=(int)rand()%(int)(map_limits_x-100);
 		this->y=(int)rand()%(int)(map_limits_y-100);
 	}
 };
-
+/*
 class Banana : public Collectable
 {
 	public:
 		double multiply_speed;
 
-	Banana(double map_limits_x,double map_limits_y)
+	Banana(double map_limits_x,double map_limits_y) : Collectable(map_limits_x, map_limits_y)
 	{
-		SuperClass(map_limits_x, map_limits_y);
 		this->multiply_speed=2;
 	}
-}
+};*/
 
 // function prototypes, etc.
-void initObjs(Collectable*);
+void initObjs(Collectable*,double,double);
 // reservate names
 	//(declaration on module.c/cpp needed)
 
