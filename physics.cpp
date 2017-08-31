@@ -14,12 +14,13 @@ void calculatePhysics(Player *p1, Camera *cam,int keyState[],Collectable *objArr
 	// Calcular colisão
 		for(int x=0;x<objCount;x++)
 		{
-			if(objArray[x].x - objArray[x].size/2 < p1->x+p1->size/2 && objArray[x].x + objArray[x].size/2 > p1->x-p1->size/2 && 
+			if(objArray[x].isAlive && objArray[x].x - objArray[x].size/2 < p1->x+p1->size/2 && objArray[x].x + objArray[x].size/2 > p1->x-p1->size/2 && 
 			   objArray[x].y - objArray[x].size/2 < p1->y+p1->size/2 && objArray[x].y + objArray[x].size/2 > p1->y-p1->size/2)
 			{
-				cout << "COLIDI\n"<< endl;
-				//objArray[x].isAlive=false;
-				//p1->points++;
+				objArray[x].isAlive=false;
+				p1->points++;
+				p1->size++;
+				cout << "p1_points = \n"<< p1->points << endl;
 			}
 		}
 
@@ -78,7 +79,7 @@ void calculatePhysics(Player *p1, Camera *cam,int keyState[],Collectable *objArr
 			cam->y+=p1->vy;
 
 		// Guardar pos no universo do player
-			p1->x=cam->x;
-			p1->y=cam->y;
+			p1->x=cam->x+p1->localx;
+			p1->y=cam->y+p1->localy;
 
 }

@@ -35,9 +35,9 @@ using namespace std;
 
 void importTextures()
 {
-    //texturePlayer = SOIL_load_OGL_texture("tex/player.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    texturePlayer = SOIL_load_OGL_texture("tex/player.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureBackground = SOIL_load_OGL_texture("tex/background.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    //texturePix = SOIL_load_OGL_texture("tex/pix.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    texturePix = SOIL_load_OGL_texture("tex/pix.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
 
     if (texturePlayer == 0) 
       printf("Erro do SOIL: '%s'\n", SOIL_last_result());
@@ -119,7 +119,7 @@ void draw_callback(void){
     // Desenha Itens
         glColor3f(1,1,1);
         for(int x=0;x<MAX_COLLECTABLES;x++)
-            drawObject(objArray[x].x-1000, objArray[x].y-1000,0, objArray[x].size, &cam, objArray[x].isAlive, texturePix);
+            drawObject(objArray[x].x, objArray[x].y,0, objArray[x].size, &cam, objArray[x].isAlive, texturePix);
 
     // Desenhar Player
         glColor3f(1, 1, 1);
