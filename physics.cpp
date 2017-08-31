@@ -20,6 +20,7 @@ void calculatePhysics(Player *p1, Camera *cam,int keyState[],Collectable *objArr
 				objArray[x].isAlive=false;
 				p1->points++;
 				p1->size++;
+				objArray[x].setup(2000,2000);
 				cout << "p1_points = \n"<< p1->points << endl;
 			}
 		}
