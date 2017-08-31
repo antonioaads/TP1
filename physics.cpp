@@ -14,11 +14,12 @@ void calculatePhysics(Player *p1, Camera *cam,int keyState[],Collectable *objArr
 	// Calcular colisão
 		for(int x=0;x<objCount;x++)
 		{
-			if(objArray[x].x < p1->x+p1->size/2 && objArray[x].x > p1->x-p1->size/2 && objArray[x].y < p1->y+p1->size/2 && objArray[x].y > p1->y-p1->size/2)
+			if(objArray[x].x - objArray[x].size/2 < p1->x+p1->size/2 && objArray[x].x + objArray[x].size/2 > p1->x-p1->size/2 && 
+			   objArray[x].y - objArray[x].size/2 < p1->y+p1->size/2 && objArray[x].y + objArray[x].size/2 > p1->y-p1->size/2)
 			{
 				cout << "COLIDI\n"<< endl;
-				objArray[x].isAlive=false;
-				p1->points++;
+				//objArray[x].isAlive=false;
+				//p1->points++;
 			}
 		}
 
