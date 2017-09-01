@@ -27,7 +27,6 @@ using namespace std;
 
 // Instanciar classes
     Player p1(WIDTH,HEIGHT);
-    Sword p1Sword(WIDTH,HEIGHT);
     Collectable *objArray[MAX_COLLECTABLES];
     Camera cam;
 
@@ -40,7 +39,7 @@ using namespace std;
 void importTextures()
 {
     texturePlayer = SOIL_load_OGL_texture("tex/player.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureSword = SOIL_load_OGL_texture("tex/swd.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureSword = SOIL_load_OGL_texture("tex/sword.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureBackground = SOIL_load_OGL_texture("tex/background.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[PIXIE] = SOIL_load_OGL_texture("tex/pix.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[DEMON] = SOIL_load_OGL_texture("tex/littled.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
@@ -135,10 +134,10 @@ void draw_callback(void){
             	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[DEMON]);
         }
 
-    // Desenhar Player
+    // Desenhar Player e Espada
         glColor3f(1, 1, 1);
-        drawPlayer(p1.localx,p1.localy,0,p1.size,texturePlayer);
-        drawPlayer(p1.localx+20,p1.localy,0,p1Sword.size,textureSword);
+        drawPlayer(p1.localx,p1.localy,0,p1.size,0,0,texturePlayer);
+        drawPlayer(p1.localx+p1.sword->xoffset,p1.localy+p1.sword->yoffset,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword);
     
     glutSwapBuffers();
 }

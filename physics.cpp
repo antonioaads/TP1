@@ -10,10 +10,19 @@
 #define RIGHT 1
 #define LEFT -1
 
+#define SWORD_OFFSET 30
+#define SWORD_INCREMENT 4
+
 using namespace std;
 
 // Booleans para colisão com as paredes
 bool left_wall=false,right_wall=false,top_wall=false,bottom_wall=false;
+
+void reset(Player *p1, Camera *cam)
+{
+	p1 = new Player(WIDTH,HEIGHT);
+	cam = new Camera();
+}
 
 bool contraryDir(bool keyState[])
 {
@@ -29,21 +38,26 @@ double modulo(double x)
 void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray,int objCount,int map_border)
 {
 	// Calcular colisão
+		bool colided = false;
+		
 		for(int x=0;x<objCount;x++)
 		{
 			if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->size/2 < p1->x+p1->size/2 && objArray[x]->x + objArray[x]->size/2 > p1->x-p1->size/2 && 
 			   objArray[x]->y - objArray[x]->size/2 < p1->y+p1->size/2 && objArray[x]->y + objArray[x]->size/2 > p1->y-p1->size/2)
 			{
+				colided=true;
 				objArray[x]->isAlive=false;
 				p1->points++;
-				p1->size++;
+				p1->sword->size+=SWORD_INCREMENT;
 				objArray[x]->rePosition();
+				if(objArray[x]->canKill)
+					reset(p1,cam);
 				cout << "p1_points = \n"<< p1->points << endl;
 			}
 		}
 
-		cout<<"p1->xaxis = "<<p1->xaxis<<endl;
-		cout<<"p1->yaxis = "<<p1->yaxis<<endl;
+		/*cout<<"p1->xaxis = "<<p1->xaxis<<endl;
+		cout<<"p1->yaxis = "<<p1->yaxis<<endl;*/
 
 	// Movimentação do Player
 
@@ -54,6 +68,13 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        	p1->vy+=2;
 		        else
 		        	p1->vy=p1->vmax;
+
+		        p1->sword->xoffset=SWORD_OFFSET;
+		        p1->sword->yoffset=SWORD_OFFSET;
+		        p1->sword->rotation=0;
+
+		        if(colided)
+		       		p1->sword->yoffset-=SWORD_INCREMENT;
 			}
 			if(keyState[(int)('s')])
 		    {
@@ -61,6 +82,13 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        	p1->vy-=2;
 		        else
 		        	p1->vy=-p1->vmax;
+
+		        p1->sword->xoffset=-SWORD_OFFSET;
+		        p1->sword->yoffset=-SWORD_OFFSET;
+		        p1->sword->rotation=-180;
+
+		        if(colided)
+		       		p1->sword->yoffset+=SWORD_INCREMENT;
 			}
 			if(keyState[(int)('d')])
 		    {
@@ -68,6 +96,13 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        	p1->vx+=2;
 		        else
 		        	p1->vx=p1->vmax;
+
+		        p1->sword->xoffset=SWORD_OFFSET;
+		        p1->sword->yoffset=-SWORD_OFFSET;
+		        p1->sword->rotation=-90;
+
+		        if(colided)
+		        	p1->sword->xoffset-=SWORD_INCREMENT;
 			}
 		    if(keyState[(int)('a')])
 		    {
@@ -75,6 +110,13 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        	p1->vx-=2;
 		        else
 		        	p1->vx=-p1->vmax;
+
+		        p1->sword->xoffset=-SWORD_OFFSET;
+		        p1->sword->yoffset=-SWORD_OFFSET;
+		        p1->sword->rotation=90;
+
+		        if(colided)
+		        	p1->sword->xoffset+=SWORD_INCREMENT;
 			}
 			// Corrigir velocidade na diagonal (para não ficar mais rápido)
 			if((keyState[(int)('w')] && keyState[(int)('d')]) || (keyState[(int)('w')] && keyState[(int)('a')]) || (keyState[(int)('s')] && keyState[(int)('a')]) || (keyState[(int)('s')] && keyState[(int)('d')]))

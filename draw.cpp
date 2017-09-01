@@ -21,7 +21,7 @@ void drawObject(double x, double y, double z, double size,Camera *cam, bool canD
 	glPushMatrix();
 	
 		glLoadIdentity();
-		glTranslatef(-cam->x,-cam->y, 0);
+		glTranslated(-cam->x,-cam->y, 0);
 		
 		glPushMatrix();
 			glTranslatef(x,y,z);
@@ -34,10 +34,10 @@ void drawObject(double x, double y, double z, double size,Camera *cam, bool canD
   			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 			
 			glBegin(GL_TRIANGLE_FAN);
-				glTexCoord2d(0,0); glVertex3f(-size,-size,0);
-				glTexCoord2d(1,0); glVertex3f(size,-size,0);
-				glTexCoord2d(1,1); glVertex3f(size,size,0);
-				glTexCoord2d(0,1); glVertex3f(-size,size,0);
+				glTexCoord2d(0,0); glVertex3d(-size,-size,0);
+				glTexCoord2d(1,0); glVertex3d(size,-size,0);
+				glTexCoord2d(1,1); glVertex3d(size,size,0);
+				glTexCoord2d(0,1); glVertex3d(-size,size,0);
 			glEnd();
 
 			glDisable(GL_TEXTURE_2D);
@@ -47,14 +47,17 @@ void drawObject(double x, double y, double z, double size,Camera *cam, bool canD
 	glPopMatrix();
 }
 
-void drawPlayer(double x, double y, double z, double size, GLuint texture)
+void drawPlayer(double x, double y, double z, double size, double fixed_width,double degree, GLuint texture)
 {
 	size/=2;
+	fixed_width/=2;
 
 	glPushMatrix();
 	
 		glLoadIdentity();
-		glTranslatef(x,y,z);
+		glTranslated(x,y,z);
+
+		glRotated(degree,0,0,1);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texture);
@@ -62,13 +65,25 @@ void drawPlayer(double x, double y, double z, double size, GLuint texture)
 		//Remover interpolação entre pixels
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
   			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-			
-		glBegin(GL_TRIANGLE_FAN);
-			glTexCoord2d(0,0); glVertex3f(-size,-size,z);
-			glTexCoord2d(1,0); glVertex3f(size,-size,z);
-			glTexCoord2d(1,1); glVertex3f(size,size,z);
-			glTexCoord2d(0,1); glVertex3f(-size,size,z);
-		glEnd();
+		
+		if(fixed_width==0)
+		{
+			glBegin(GL_TRIANGLE_FAN);
+				glTexCoord2d(0,0); glVertex3d(-size,-size,z);
+				glTexCoord2d(1,0); glVertex3d(size,-size,z);
+				glTexCoord2d(1,1); glVertex3d(size,size,z);
+				glTexCoord2d(0,1); glVertex3d(-size,size,z);
+			glEnd();
+		}
+		else
+		{
+			glBegin(GL_TRIANGLE_FAN);
+				glTexCoord2d(0,0); glVertex3d(-fixed_width,-size,z);
+				glTexCoord2d(1,0); glVertex3d(fixed_width,-size,z);
+				glTexCoord2d(1,1); glVertex3d(fixed_width,size,z);
+				glTexCoord2d(0,1); glVertex3d(-fixed_width,size,z);
+			glEnd();	
+		}
 
 		glDisable(GL_TEXTURE_2D);
 	

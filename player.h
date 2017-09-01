@@ -7,6 +7,26 @@
 // function prototypes, etc.
 
 // classes
+class Sword{
+	public:
+		double x,y,
+			   localx,localy;
+		double size,fixed_width;
+		double rotation;
+		double xoffset,yoffset;
+
+	Sword(double width,double height)
+	{
+		this->x=width/2;
+		this->y=height/2;
+		this->size=100;
+		this->fixed_width=this->size;
+		this->rotation=-90;
+		this->xoffset=20;
+		this->yoffset=20;
+	}
+};
+
 class Player{
 	public:
 		double x,y,	// pos no universo (necessario para colisoes (isso+local))
@@ -17,6 +37,7 @@ class Player{
 		double vx,vy,vmax,fric; //velocidade nos eixos x,y, o maximo que o jogador pode atingir e a fricção com o ambiente
 		int isAlive;	//player vivo? vidas?
 		int points;
+		Sword *sword;
 	
 	Player(double width,double height)
 	{
@@ -29,26 +50,14 @@ class Player{
 		this->size=100;
 		this->points=0;
 
+		this->sword=new Sword(width,height);
+
 		this->vx=0;
 		this->vy=0;
 		this->vmax=10;
 		this->fric=1.1;
 		
 		this->isAlive=0;
-	}
-};
-
-class Sword{
-	public:
-		double x,y,
-			   localx,localy;
-		double size;
-
-	Sword(double width,double height)
-	{
-		this->x=width/2;
-		this->y=height/2;
-		this->size=100;
 	}
 };
 
