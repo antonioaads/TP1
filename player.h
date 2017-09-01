@@ -20,6 +20,8 @@ class Player{
 	
 	Player(double width,double height)
 	{
+		this->x=width/(float)2;
+		this->y=height/(float)2;
 		this->localx=width/(float)2;
 		this->localy=height/(float)2;
 		this->lastx=this->x;
@@ -33,6 +35,20 @@ class Player{
 		this->fric=1.1;
 		
 		this->isAlive=0;
+	}
+};
+
+class Sword{
+	public:
+		double x,y,
+			   localx,localy;
+		double size;
+
+	Sword(double width,double height)
+	{
+		this->x=width/2;
+		this->y=height/2;
+		this->size=100;
 	}
 };
 

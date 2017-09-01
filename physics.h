@@ -6,7 +6,7 @@
 /**************************/
 // your stuff goes here
 // function prototypes, etc.
-	void calculatePhysics(Player*,Camera*,int*,Collectable*,int);
+	void calculatePhysics(Player*,Camera*,bool*,Collectable**,int,int);
 // classes
 // reservate names
 

@@ -1,9 +1,20 @@
-#include "objects.h"	
+#include "objects.h"
 
-void initObj(Collectable *objArray,int max_colllectables,double map_limits_x,double map_limits_y)
+enum COLLECTABLE_TYPE { PIXIE=0, DEMON };
+#define COLLECTABLE_TYPE_COUNT 2
+
+void initObj(Collectable **objArray,int max_colllectables,double map_border)
 {
-	for(int x;x<max_colllectables;x++)
+	for(int x=0;x<max_colllectables;x++)
 	{
-		(objArray[x]).setup(map_limits_x,map_limits_y);
+		switch(x % COLLECTABLE_TYPE_COUNT)
+		{
+			case PIXIE:
+				objArray[x] = new Pixie(map_border);
+			break;
+			case DEMON:
+				objArray[x] = new Demon(map_border);
+			break;
+		}
 	}
 }

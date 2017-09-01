@@ -2,6 +2,9 @@
 #define OBJECTS_H // <- ...
 
 #include <bits/stdc++.h>
+#include <SOIL/SOIL.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
 
 /**************************/
 // your stuff goes here
@@ -12,50 +15,59 @@ class Collectable
 		double x,y;
 		double size;
 		bool isAlive;
+		bool canKill;
 
-		double map_limits_x;
-		double map_limits_y;
+		double map_border;
 
-	Collectable()
+	Collectable();
+
+	Collectable(double map_border)
 	{
-		this->map_limits_x = 0;
-		this->map_limits_y = 0;
+		this->map_border = map_border;
 
 		this->isAlive=true;
 
 		this->size=60;
 
-		this->x=(int)rand()%(int)(2000);
-		this->y=(int)rand()%(int)(2000);
+		this->x=(int)rand()%(int)(map_border);
+		this->y=(int)rand()%(int)(map_border);
 	}
 
-	void setup(double map_limits_x,double map_limits_y)
+	void rePosition()
 	{
-		this->map_limits_x = map_limits_x;
-		this->map_limits_y = map_limits_y;
-
-		this->isAlive=true;
-
-		this->size=60;
-
-		this->x=(int)rand()%(int)(map_limits_x-100);
-		this->y=(int)rand()%(int)(map_limits_y-100);
+		this->x=(int)rand()%(int)(100);
+		this->y=(int)rand()%(int)(100);
 	}
+
+	virtual ~Collectable()
+	{}
 };
-/*
+
 class Pixie : public Collectable
 {
 	public:
 		double multiply_speed;
 
-	Banana(double map_limits_x,double map_limits_y) : Collectable(map_limits_x, map_limits_y)
+	Pixie(double map_border) : Collectable(map_border)
 	{
 		this->multiply_speed=2;
+		Collectable::canKill=false;
 	}
-};*/
+};
+
+class Demon : public Collectable
+{
+	public:
+
+	Demon(double map_border) : Collectable(map_border)
+	{
+		Collectable::canKill=true;
+		Collectable::size=100;
+	}
+};
 
 // function prototypes, etc.
-void initObj(Collectable*,int,double,double);
+void initObj(Collectable**,int,double);
 // reservate names
 	//(declaration on module.c/cpp needed)
 
