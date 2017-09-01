@@ -97,6 +97,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        else
 		        	p1->vx=p1->vmax;
 
+		        p1->frame_orientation=1;
+
 		        p1->sword->xoffset=SWORD_OFFSET;
 		        p1->sword->yoffset=-SWORD_OFFSET;
 		        p1->sword->rotation=-90;
@@ -110,6 +112,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        	p1->vx-=2;
 		        else
 		        	p1->vx=-p1->vmax;
+
+		        p1->frame_orientation=-1;
 
 		        p1->sword->xoffset=-SWORD_OFFSET;
 		        p1->sword->yoffset=-SWORD_OFFSET;

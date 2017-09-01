@@ -47,7 +47,7 @@ void drawObject(double x, double y, double z, double size,Camera *cam, bool canD
 	glPopMatrix();
 }
 
-void drawPlayer(double x, double y, double z, double size, double fixed_width,double degree, GLuint texture)
+void drawPlayer(double x, double y, double z, double size, double fixed_width,double degree, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	size/=2;
 	fixed_width/=2;
@@ -59,6 +59,8 @@ void drawPlayer(double x, double y, double z, double size, double fixed_width,do
 
 		glRotated(degree,0,0,1);
 
+		glScaled(frame_orientation,1,1);
+
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, texture);
 
@@ -69,10 +71,10 @@ void drawPlayer(double x, double y, double z, double size, double fixed_width,do
 		if(fixed_width==0)
 		{
 			glBegin(GL_TRIANGLE_FAN);
-				glTexCoord2d(0,0); glVertex3d(-size,-size,z);
-				glTexCoord2d(1,0); glVertex3d(size,-size,z);
-				glTexCoord2d(1,1); glVertex3d(size,size,z);
-				glTexCoord2d(0,1); glVertex3d(-size,size,z);
+				glTexCoord2d(0, 0); glVertex3d(-size,-size,z);
+				glTexCoord2d(frame*(1/total_frames), 0); glVertex3d(size,-size,z);
+				glTexCoord2d(frame*(1/total_frames), frame*(1/total_frames)); glVertex3d(size,size,z);
+				glTexCoord2d(0, frame*(1/total_frames)); glVertex3d(-size,size,z);
 			glEnd();
 		}
 		else

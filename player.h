@@ -37,6 +37,8 @@ class Player{
 		double vx,vy,vmax,fric; //velocidade nos eixos x,y, o maximo que o jogador pode atingir e a fricção com o ambiente
 		int isAlive;	//player vivo? vidas?
 		int points;
+		int frame,total_frames;
+		int frame_orientation;
 		Sword *sword;
 	
 	Player(double width,double height)
@@ -49,6 +51,9 @@ class Player{
 		this->lasty=this->y;
 		this->size=100;
 		this->points=0;
+		this->frame=1;
+		this->total_frames=1;
+		this->frame_orientation=1;
 
 		this->sword=new Sword(width,height);
 

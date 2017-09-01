@@ -136,8 +136,8 @@ void draw_callback(void){
 
     // Desenhar Player e Espada
         glColor3f(1, 1, 1);
-        drawPlayer(p1.localx,p1.localy,0,p1.size,0,0,texturePlayer);
-        drawPlayer(p1.localx+p1.sword->xoffset,p1.localy+p1.sword->yoffset,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword);
+        drawPlayer(p1.localx,p1.localy,0,p1.size,0,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
+        drawPlayer(p1.localx+p1.sword->xoffset,p1.localy+p1.sword->yoffset,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword,1,1,1);
     
     glutSwapBuffers();
 }
