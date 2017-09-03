@@ -18,3 +18,23 @@ void initObj(Collectable **objArray,int max_colllectables,double map_border)
 		}
 	}
 }
+
+// Classes Methods
+
+Collectable::Collectable(double map_border)
+{
+	this->map_border = map_border/2;
+
+	this->isAlive=true;
+
+	this->size=60;
+
+	this->x=(int)rand()%(int)(this->map_border);
+	this->y=(int)rand()%(int)(this->map_border);
+}
+
+void Collectable::rePosition()
+{
+	this->x=(int)rand()%(int)(this->map_border);
+	this->y=(int)rand()%(int)(this->map_border);
+}

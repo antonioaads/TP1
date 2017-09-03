@@ -1,6 +1,7 @@
 #include "player.h"
 #include "objects.h"
 #include <iostream>
+#include <math.h>
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -10,21 +11,32 @@
 #define RIGHT 1
 #define LEFT -1
 
-#define SWORD_OFFSET 30
 #define SWORD_INCREMENT 4
+#define SWORD_MAX_SIZE 100
+
+enum GAME_STATE{MENU=-1,DEAD,PAUSE,GAME_0};
 
 using namespace std;
 
+bool canPause=true;
 // Booleans para colisão com as paredes
 bool left_wall=false,right_wall=false,top_wall=false,bottom_wall=false;
 
-void reset(Player *p1, Camera *cam)
+double modulo(double x)
+{ return x>=0 ? x:-x; }
+
+void reset(Player *p1, Camera *cam, Collectable **objArray,int objCount) // Reseta o jogo (camera, personagem, e monstros com novas posições)
 {
-	p1 = new Player(WIDTH,HEIGHT);
-	cam = new Camera();
+	for(int x=0;x<objCount;x++)
+	{
+		objArray[x]->rePosition();
+	}
+
+	*p1 = Player(WIDTH,HEIGHT);
+	*cam = Camera(WIDTH,HEIGHT);
 }
 
-bool contraryDir(bool keyState[])
+bool contraryDir(bool keyState[]) // Função que talvez auxilie em trazer o cara de volta para o centro da tela
 {
 	if(left_wall) return (!keyState['a'] && keyState['d']);
 	if(right_wall) return (!keyState['d'] && keyState['a']);
@@ -32,18 +44,62 @@ bool contraryDir(bool keyState[])
 	if(bottom_wall) return (!keyState['s'] && keyState['w']);
 }
 
-double modulo(double x)
-{ return x>=0 ? x:-x; }
+void enablePause(int)
+{canPause=true;}
 
-void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray,int objCount,int map_border)
+void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray,int objCount,int map_border,int *gameState)
 {
+	// Resetar jogo
+	if(keyState['r'])
+		*gameState=DEAD; // Por enquanto não tem volta
+
+	// Pausar o jogo
+	/*if(keyState['p'] && canPause)
+    {
+    	canPause=false;
+    	glutTimerFunc(10000,enablePause,0);
+
+    	if(*gameState==PAUSE)
+    		*gameState=GAME_0;
+    	else
+    		*gameState=PAUSE;
+    }*/
+
 	// Calcular colisão
 		bool colided = false;
 		
 		for(int x=0;x<objCount;x++)
 		{
-			if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->size/2 < p1->x+p1->size/2 && objArray[x]->x + objArray[x]->size/2 > p1->x-p1->size/2 && 
-			   objArray[x]->y - objArray[x]->size/2 < p1->y+p1->size/2 && objArray[x]->y + objArray[x]->size/2 > p1->y-p1->size/2)
+			// Colisão com o JOGADOR
+			if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->size/2 < p1->x+p1->size/2 
+									&& objArray[x]->x + objArray[x]->size/2 > p1->x-p1->size/2 
+									&& objArray[x]->y - objArray[x]->size/2 < p1->y+p1->size/2 
+									&& objArray[x]->y + objArray[x]->size/2 > p1->y-p1->size/2)
+			{
+				colided=true;
+				objArray[x]->isAlive=false;
+				objArray[x]->rePosition();
+
+				if(!p1->fakePlayer)
+				{
+					if(objArray[x]->canKill)
+						*gameState=DEAD;
+					else
+					{
+						p1->points++;
+						if(p1->sword->size <= SWORD_MAX_SIZE)
+							p1->sword->size+=SWORD_INCREMENT;
+					}
+				}
+
+				objArray[x]->isAlive=true;
+				cout << "p1_points = \n"<< p1->points << endl;
+			}
+			// Colisão com a ESPADA
+			/*if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->size/2 < (p1->sword->x+p1->sword->size)*cos(p1->sword->rotation*360/M_PI)
+									&& objArray[x]->x + objArray[x]->size/2 > 0 
+									&& objArray[x]->y - objArray[x]->size/2 < (p1->sword->y+p1->sword->fixed_width)*sin(p1->sword->rotation*360/M_PI)
+									&& objArray[x]->y + objArray[x]->size/2 > 0)
 			{
 				colided=true;
 				objArray[x]->isAlive=false;
@@ -51,13 +107,16 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 				p1->sword->size+=SWORD_INCREMENT;
 				objArray[x]->rePosition();
 				if(objArray[x]->canKill)
-					reset(p1,cam);
+					reset(p1,cam,gameState);
 				cout << "p1_points = \n"<< p1->points << endl;
-			}
+			}*/
 		}
 
 		/*cout<<"p1->xaxis = "<<p1->xaxis<<endl;
 		cout<<"p1->yaxis = "<<p1->yaxis<<endl;*/
+
+	// Recurso utilizado para que o player não spawne em cima de um monstro e já morra de primeira vez, A.K.A.: migué =D
+	p1->fakePlayer=false;
 
 	// Movimentação do Player
 
@@ -69,12 +128,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        else
 		        	p1->vy=p1->vmax;
 
-		        p1->sword->xoffset=SWORD_OFFSET;
-		        p1->sword->yoffset=SWORD_OFFSET;
-		        p1->sword->rotation=0;
-
-		        if(colided)
-		       		p1->sword->yoffset-=SWORD_INCREMENT;
+		        p1->sword->rotation=90;
 			}
 			if(keyState[(int)('s')])
 		    {
@@ -83,12 +137,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        else
 		        	p1->vy=-p1->vmax;
 
-		        p1->sword->xoffset=-SWORD_OFFSET;
-		        p1->sword->yoffset=-SWORD_OFFSET;
-		        p1->sword->rotation=-180;
-
-		        if(colided)
-		       		p1->sword->yoffset+=SWORD_INCREMENT;
+		        p1->sword->rotation=-90;
 			}
 			if(keyState[(int)('d')])
 		    {
@@ -99,12 +148,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 		        p1->frame_orientation=1;
 
-		        p1->sword->xoffset=SWORD_OFFSET;
-		        p1->sword->yoffset=-SWORD_OFFSET;
-		        p1->sword->rotation=-90;
-
-		        if(colided)
-		        	p1->sword->xoffset-=SWORD_INCREMENT;
+		        p1->sword->rotation=0;
 			}
 		    if(keyState[(int)('a')])
 		    {
@@ -115,15 +159,11 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 		        p1->frame_orientation=-1;
 
-		        p1->sword->xoffset=-SWORD_OFFSET;
-		        p1->sword->yoffset=-SWORD_OFFSET;
-		        p1->sword->rotation=90;
-
-		        if(colided)
-		        	p1->sword->xoffset+=SWORD_INCREMENT;
+		        p1->sword->rotation=180;
 			}
 			// Corrigir velocidade na diagonal (para não ficar mais rápido)
-			if((keyState[(int)('w')] && keyState[(int)('d')]) || (keyState[(int)('w')] && keyState[(int)('a')]) || (keyState[(int)('s')] && keyState[(int)('a')]) || (keyState[(int)('s')] && keyState[(int)('d')]))
+			if((keyState[(int)('w')] && keyState[(int)('d')]) || (keyState[(int)('w')] && keyState[(int)('a')]) 
+					|| (keyState[(int)('s')] && keyState[(int)('a')]) || (keyState[(int)('s')] && keyState[(int)('d')]))
 			{
 				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
 				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
@@ -153,9 +193,11 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 				cam->x+=p1->vx;
 				cam->y+=p1->vy;
 
-			// Guardar pos no universo do player
+			// Guardar pos no universo do player (e espada)
 				p1->x=cam->x+p1->localx;
 				p1->y=cam->y+p1->localy;
+				p1->sword->x=p1->x;
+				p1->sword->y=p1->y;
 		}
 
 		// Calcular direção do player

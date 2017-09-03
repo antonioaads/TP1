@@ -19,27 +19,11 @@ class Collectable
 
 		double map_border;
 
-	Collectable();
+	Collectable(double map_border);
 
-	Collectable(double map_border)
-	{
-		this->map_border = map_border;
+	void rePosition();
 
-		this->isAlive=true;
-
-		this->size=60;
-
-		this->x=(int)rand()%(int)(map_border);
-		this->y=(int)rand()%(int)(map_border);
-	}
-
-	void rePosition()
-	{
-		this->x=(int)rand()%(int)(100);
-		this->y=(int)rand()%(int)(100);
-	}
-
-	virtual ~Collectable()
+	virtual ~Collectable() // Destrutor virtual - só pra caracterizar polimorfismo (pode ser qualquer função como virtual, desde que seja pelo menos uma)
 	{}
 };
 
