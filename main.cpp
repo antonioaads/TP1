@@ -14,17 +14,26 @@
 #include "physics.h"
 #include "objects.h"
 
+// Audio
+	#include <SDL2/SDL.h>
+	#include <SDL2/SDL_mixer.h>
+
+	#define MUS_PATH "music/tutut.ogg" // OGG(e outros) = música de fundo
+
 #define WIDTH 1024
 #define HEIGHT 768
 #define FPS 60
 #define MAP_BORDER 3000
 #define MAX_COLLECTABLES 30
 
-enum GAME_STATE{MENU=-1,DEAD,PAUSE,GAME_0};
+enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
 enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON};
-enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO}; 
+enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE}; 
 
 using namespace std;
+
+// Arquivo de musica (ponteiro)
+	Mix_Music *music = NULL;
 
 // Inicializar variavel
     bool keyState[300];
@@ -40,7 +49,7 @@ using namespace std;
     GLuint textureSword;
     GLuint textureBackground;
     GLuint textureCollectables[10];
-    GLuint textureGUI[10];
+    GLuint textureGUI[20];
     GLuint textureMenu;
 
 void importTextures()
@@ -52,6 +61,11 @@ void importTextures()
     textureGUI[RESTARTBRIGHT] = SOIL_load_OGL_texture("tex/restartb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[RESTARTBRIGHTYES] = SOIL_load_OGL_texture("tex/restartbY.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[RESTARTBRIGHTNO] = SOIL_load_OGL_texture("tex/restartbN.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[QUITGREYED] = SOIL_load_OGL_texture("tex/quitg.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[QUITBRIGHT] = SOIL_load_OGL_texture("tex/quitb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[QUITBRIGHTYES] = SOIL_load_OGL_texture("tex/quitbY.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[QUITBRIGHTNO] = SOIL_load_OGL_texture("tex/quitbN.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[TEXPAUSE] = SOIL_load_OGL_texture("tex/pauseb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[PIXIE] = SOIL_load_OGL_texture("tex/pix.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[DEMON] = SOIL_load_OGL_texture("tex/littled.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu = SOIL_load_OGL_texture("tex/menu.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
@@ -86,6 +100,9 @@ void reshape_callback(int w,int h){
     glMatrixMode(GL_MODELVIEW);
 }
 
+void enablePause(int)
+{cam.gui->canPause=true;}
+
 void stateMachine()
 {
     switch(gameState)
@@ -98,11 +115,26 @@ void stateMachine()
 			}
         break;
 
+        case QUIT:
+        	cam.gui->quit=true;
+        break;
+
         case DEAD:
         	cam.gui->restart=true;
         break;
 
         case PAUSE:
+			glutTimerFunc(1000,enablePause,0);
+			if(cam.gui->canPause)
+			{
+				if(keyState['p'] && cam.gui->pause==true)
+				{
+					gameState=GAME_0;
+					cam.gui->canPause=false;
+					cam.gui->pause=false;
+					glutTimerFunc(1000,enablePause,0);
+				}
+			}
         break;
         
         case GAME_0:
@@ -120,7 +152,7 @@ void update_callback(int x)
 }
 
 void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
-    if(key==27)
+    if(gameState==MENU && key==27)
         exit(0);
 
     keyState[(int)key]=true;
@@ -151,6 +183,24 @@ void passive_mouse_callback(int x, int y){
 		else
 			cam.gui->textureRestart=RESTARTGREYED;
 	}
+
+	if(gameState==QUIT)
+	{
+		if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX-cam.gui->quitSize/2
+			&& y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY-cam.gui->quitSize/2)
+		{
+		   	cam.gui->textureQuit=QUITBRIGHT;
+
+		   	// YES
+		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
+				cam.gui->textureQuit=QUITBRIGHTYES;
+			// NO
+			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
+				cam.gui->textureQuit=QUITBRIGHTNO;
+		}
+		else
+			cam.gui->textureQuit=QUITGREYED;
+	}
 }
 
 void mouse_callback(int button, int state, int x, int y)
@@ -170,9 +220,29 @@ void mouse_callback(int button, int state, int x, int y)
 			{
 				gameState=MENU;
 			}
-
-		
 	}
+
+	// Mouse no botão de sair
+	if(gameState == QUIT)
+	{
+		// YES
+		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
+			{
+				exit(0);
+			}
+		// NO
+			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
+			{
+				cam.gui->quit=false;
+				gameState=GAME_0;
+			}
+	}
+}
+void off_shade(bool canDraw)
+{
+	glColor4f(0,0,0,0.5);
+	drawOverlay(WIDTH/2,HEIGHT/2,0,MAP_BORDER*2,canDraw,0);
+	glColor4f(1,1,1,1);
 }
 
 void draw_callback(void){
@@ -186,6 +256,7 @@ void draw_callback(void){
 
     	break;
 
+    	case QUIT:
     	case PAUSE:
     	case DEAD:
     	case GAME_0:
@@ -210,7 +281,13 @@ void draw_callback(void){
 	        //drawSword((p1.sword->x+p1.sword->size)*cos(p1.sword->rotation*360/M_PI), (p1.sword->y+p1.sword->fixed_width)*sin(p1.sword->rotation*360/M_PI),0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,0,1,1,1);
 
 	  		// Desenha Menus por cima
-	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]);
+		        off_shade(cam.gui->restart);
+	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]); // Restart Button
+	        	off_shade(cam.gui->quit);
+	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->quitSize,cam.gui->quit,textureGUI[cam.gui->textureQuit]); // Quit Button
+	        	off_shade(cam.gui->pause);
+	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->pauseSize,cam.gui->pause,textureGUI[cam.gui->texturePause]);
+	        	
 		break;	
     }
     
@@ -218,6 +295,23 @@ void draw_callback(void){
 }
 
 int main(int argc, char** argv){
+
+	// Configuracao inicial da SDL
+		// Initialize SDL.
+			if (SDL_Init(SDL_INIT_AUDIO) < 0)
+				return -1;
+		//Initialize SDL_mixer 
+			if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ) 
+				return -1;
+
+		// Load our music
+			music = Mix_LoadMUS(MUS_PATH);
+			if (music == NULL)
+				return -1;
+		// Play Music
+			if ( Mix_PlayMusic( music, -1) == -1 )
+				return -1;
+
     
     // Configuracaoo inicial da janela do GLUT
         glutInit(&argc, argv);
@@ -241,6 +335,12 @@ int main(int argc, char** argv){
 
     // Start Loop
         glutMainLoop();
+
+    // clean up our resources
+		Mix_FreeMusic(music);
+
+	// quit SDL_mixer
+		Mix_CloseAudio();
     
     return 0;
 }

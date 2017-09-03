@@ -45,6 +45,14 @@ class GUI
 		bool restart;
 		double restartX, restartY, restartSize;
 		int textureRestart;
+
+		bool quit;
+		double quitX, quitY, quitSize;
+		int textureQuit;
+
+		bool pause,canPause;
+		double pauseX, pauseY, pauseSize;
+		int texturePause;
 		
 	GUI(double width, double height);
 };

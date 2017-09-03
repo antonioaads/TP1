@@ -14,7 +14,7 @@
 #define SWORD_INCREMENT 4
 #define SWORD_MAX_SIZE 100
 
-enum GAME_STATE{MENU=-1,DEAD,PAUSE,GAME_0};
+enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
 
 using namespace std;
 
@@ -44,11 +44,18 @@ bool contraryDir(bool keyState[]) // Função que talvez auxilie em trazer o car
 	if(bottom_wall) return (!keyState['s'] && keyState['w']);
 }
 
-void enablePause(int)
-{canPause=true;}
-
 void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray,int objCount,int map_border,int *gameState)
 {
+	// Sair do jogo
+	if(keyState[27])
+		*gameState=QUIT;
+	// Pausar jogo
+	if(keyState['p'] && cam->gui->canPause && cam->gui->pause==false)
+	{
+		*gameState=PAUSE;
+		cam->gui->canPause=false;
+		cam->gui->pause=true;
+	}
 	// Resetar jogo
 	if(keyState['r'])
 		*gameState=DEAD; // Por enquanto não tem volta

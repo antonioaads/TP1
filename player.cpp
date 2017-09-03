@@ -1,5 +1,7 @@
 #include "player.h"
 
+enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE}; 
+
 // Classes Methods
 Sword::Sword(double width,double height)
 {
@@ -48,7 +50,20 @@ GUI::GUI(double width, double height)
 	this->restartSize=600;
 	this->restartX=width/2;
 	this->restartY=height/2;
-	this->textureRestart=0;
+	this->textureRestart=RESTARTGREYED;
+
+	this->quit=false;
+	this->quitSize=600;
+	this->quitX=width/2;
+	this->quitY=height/2;
+	this->textureQuit=QUITGREYED;
+
+	this->pause=false;
+	this->canPause=true;
+	this->pauseSize=600;
+	this->pauseX=width/2;
+	this->pauseY=height/2;
+	this->texturePause=TEXPAUSE;
 }
 
 Camera::Camera(double width,double height)
