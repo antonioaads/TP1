@@ -55,6 +55,10 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		*gameState=DEAD; // Por enquanto não tem volta
 	if(keyState['+'])
 		p1->sword->size++;
+	if(keyState['n'])
+		p1->sword->rotation++;
+	if(keyState['m'])
+		p1->sword->rotation--;
 
 	// Pausar o jogo
 	/*if(keyState['p'] && canPause)

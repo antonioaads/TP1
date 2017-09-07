@@ -124,7 +124,7 @@ double rotationConvert(double xr,double yr,double degree, char coord)
 {
 	degree = degree*M_PI/180;
 
-	if(coord == 'x') return (xr*cos(degree) + yr*sin(degree)); 		// Conversão do sistema de coordenadas usando fórmula de gaav
+	if(coord == 'x') return (xr*cos(degree) - yr*sin(degree)); 		// Conversão do sistema de coordenadas usando fórmula de gaav
 	return (xr*sin(degree) + yr*cos(degree));						// x=x'cos + y'sen  ||  y=x'sen + y'cos
 }
 
