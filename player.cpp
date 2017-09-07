@@ -64,6 +64,14 @@ GUI::GUI(double width, double height)
 	this->pauseX=width/2;
 	this->pauseY=height/2;
 	this->texturePause=TEXPAUSE;
+
+	this->portrait=true;
+	this->portraitSize=150;
+	this->portraitX=100;
+	this->portraitY=100;
+	this->portraitframe=1;
+	this->portraittotal_frames=6;
+	this->portraitframe_delay=1;
 }
 
 Camera::Camera(double width,double height)

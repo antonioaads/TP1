@@ -53,6 +53,10 @@ class GUI
 		bool pause,canPause;
 		double pauseX, pauseY, pauseSize;
 		int texturePause;
+
+		bool portrait;
+		double portraitX,portraitY,portraitSize;
+		int portraitframe,portraittotal_frames,portraitframe_delay;
 		
 	GUI(double width, double height);
 };

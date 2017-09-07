@@ -8,6 +8,7 @@
 #include <SOIL/SOIL.h>
 #include <GL/glew.h>
 #include <GL/freeglut.h>
+#include <string>
 #include <math.h>
 #include "player.h"
 #include "draw.h"
@@ -30,7 +31,7 @@
 enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
 enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
 enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON};
-enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE};
+enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT};
 enum MENU_SELECTION{START=0,EXIT};
 
 using namespace std;
@@ -70,11 +71,13 @@ void importTextures()
     textureGUI[RESTARTBRIGHT] = SOIL_load_OGL_texture("tex/restartb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[RESTARTBRIGHTYES] = SOIL_load_OGL_texture("tex/restartbY.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[RESTARTBRIGHTNO] = SOIL_load_OGL_texture("tex/restartbN.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureGUI[QUITGREYED] = SOIL_load_OGL_texture("tex/quitg.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureGUI[QUITBRIGHT] = SOIL_load_OGL_texture("tex/quitb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureGUI[QUITBRIGHTYES] = SOIL_load_OGL_texture("tex/quitbY.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureGUI[QUITBRIGHTNO] = SOIL_load_OGL_texture("tex/quitbN.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[QUITGREYED] = SOIL_load_OGL_texture("tex/exitg.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[QUITBRIGHT] = SOIL_load_OGL_texture("tex/exitb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[QUITBRIGHTYES] = SOIL_load_OGL_texture("tex/exitbY.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[QUITBRIGHTNO] = SOIL_load_OGL_texture("tex/exitbN.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[TEXPAUSE] = SOIL_load_OGL_texture("tex/pauseb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[WOODPLATE] = SOIL_load_OGL_texture("tex/wood.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[PORTRAIT] = SOIL_load_OGL_texture("tex/samuraiFACE.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[PIXIE] = SOIL_load_OGL_texture("tex/pix.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[DEMON] = SOIL_load_OGL_texture("tex/littled.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[START] = SOIL_load_OGL_texture("tex/menuSTART.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
@@ -110,9 +113,6 @@ void reshape_callback(int w,int h){
     glMatrixMode(GL_MODELVIEW);
 }
 
-void enablePause(int)
-{cam.gui->canPause=true;}
-
 void stateMachine()
 {
     switch(gameState)
@@ -143,6 +143,7 @@ void stateMachine()
             // Physics
                 calculatePhysics(&p1,&cam,keyState,objArray,MAX_COLLECTABLES,MAP_BORDERX,&gameState);
             // Animation Handling
+                // Player
                 if(keyState['s'] || keyState['d'] || keyState['a'])
                 {
                 	texturePlayer=texturePlayerAnim[WALK];
@@ -165,10 +166,23 @@ void stateMachine()
                 		p1.frame++;
                 	else
                 		p1.frame=1;
-                	
+
                 	p1.frame_delay=0;
                 }
         		p1.frame_delay++;
+
+        		// Portrait
+        		if(cam.gui->portraitframe_delay >= 10)
+                {
+                	if(cam.gui->portraitframe < cam.gui->portraittotal_frames-1)
+                		cam.gui->portraitframe++;
+                	else
+                		cam.gui->portraitframe=1;
+
+                	cam.gui->portraitframe_delay=0;
+                }
+        		cam.gui->portraitframe_delay++;
+
 
         break;
     }
@@ -192,7 +206,10 @@ void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
 		   		gameState = PAUSE;
 				cam.gui->pause=true;
 		   	}
-			else if(key=='p' && gameState==PAUSE)
+		break;
+
+		case PAUSE:
+			if(key=='p' && gameState==PAUSE)
 			{
 				gameState=GAME_0;
 				cam.gui->pause=false;
@@ -301,11 +318,19 @@ void mouse_callback(int button, int state, int x, int y)
 			}
 	}
 }
-void off_shade(bool canDraw)
+void off_shade(bool canDraw) // Overlay de "escurecer a tela no pause"
 {
 	glColor4f(0,0,0,0.5);
 	drawOverlay(WIDTH/2,HEIGHT/2,0,MAP_BORDERX*2,MAP_BORDERX*2,canDraw,0);
 	glColor4f(1,1,1,1);
+}
+
+void drawText(void* font, string str, double x, double y)
+{
+	glRasterPos2d(x,y);
+
+	for(int i=0;i<str.size();i++)
+		glutBitmapCharacter(font,str[i]);
 }
 
 void draw_callback(void){
@@ -316,11 +341,10 @@ void draw_callback(void){
     	case MENU:
     	// Desenha menu inicial
     		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH*1.5,HEIGHT,true,textureMenu[menuSelection]);
-
     	break;
 
-    	case QUIT:
-    	case PAUSE:
+    	case QUIT:	// Como quero que fique desenhado por baixo o último estado do jogo
+    	case PAUSE:	// junto todos os cases em um único
     	case DEAD:
     	case GAME_0:
     		// Desenhar Background
@@ -343,6 +367,11 @@ void draw_callback(void){
 		        drawSword(p1.localx,p1.localy,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword,1,1,1);
 
 	  		// Desenha Menus por cima
+		        drawOverlay(265,80,0,250,250,true,textureGUI[WOODPLATE]);
+		        drawPlayer(cam.gui->portraitX,cam.gui->portraitY,0,cam.gui->portraitSize,cam.gui->portraitSize,0,textureGUI[PORTRAIT],cam.gui->portraitframe,cam.gui->portraittotal_frames,1);
+		        char str[100];
+		        sprintf(str,"Points: %d",p1.points);
+		        drawText(GLUT_BITMAP_HELVETICA_18,str,220,70);
 		        off_shade(cam.gui->restart);
 	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]); // Restart Button
 	        	off_shade(cam.gui->quit);
