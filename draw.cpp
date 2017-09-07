@@ -118,6 +118,14 @@ void drawPlayer(double x, double y, double z, double size, double degree, GLuint
 	glPopMatrix();
 }
 
+double rotationConvert(double xr,double yr,double degree, char coord)
+{
+	degree = degree*M_PI/180;
+
+	if(coord == 'x') return (xr*cos(degree) + yr*sin(degree)); 		// Conversão do sistema de coordenadas usando fórmula de gaav
+	return (xr*sin(degree) + yr*cos(degree));						// x=x'cos + y'sen  ||  y=x'sen + y'cos
+}
+
 void drawSword(double x, double y, double z, double size, double fixed_width,double degree, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	/*
@@ -125,12 +133,14 @@ void drawSword(double x, double y, double z, double size, double fixed_width,dou
 		(lembrando, esse canto é virtual, ou seja, "inferior esquerdo" é uma referencia anterior da rotação do objeto (quando o mesmo está na posição horizontal para a direita))
 	*/
 
+	fixed_width/=2;
+
 	glPushMatrix();
 	
 		glLoadIdentity();
 		glTranslated(x,y,z);
 
-		glRotated(degree,0,0,1);
+		//glRotated(degree,0,0,1);
 
 		glScaled(frame_orientation,1,1);
 
@@ -142,10 +152,10 @@ void drawSword(double x, double y, double z, double size, double fixed_width,dou
   			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		
 		glBegin(GL_TRIANGLE_FAN);
-			glTexCoord2d(0, 0); glVertex3d(0,0,z);
-			glTexCoord2d(frame*(1/total_frames), 0); glVertex3d(size,0,z);
-			glTexCoord2d(frame*(1/total_frames), frame*(1/total_frames)); glVertex3d(size,fixed_width,z);
-			glTexCoord2d(0, frame*(1/total_frames)); glVertex3d(0,fixed_width,z);
+			glTexCoord2d(0, 0); glVertex3d(rotationConvert(0,-fixed_width,degree,'x'),rotationConvert(0,-fixed_width,degree,'y'),z);
+			glTexCoord2d(frame*(1/total_frames), 0); glVertex3d(rotationConvert(size,-fixed_width,degree,'x'),rotationConvert(size,-fixed_width,degree,'y'),z);
+			glTexCoord2d(frame*(1/total_frames), frame*(1/total_frames)); glVertex3d(rotationConvert(size,fixed_width,degree,'x'),rotationConvert(size,fixed_width,degree,'y'),z);
+			glTexCoord2d(0, frame*(1/total_frames)); glVertex3d(rotationConvert(0,fixed_width,degree,'x'),rotationConvert(0,fixed_width,degree,'y'),z);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);

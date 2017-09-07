@@ -49,13 +49,6 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 	// Sair do jogo
 	if(keyState[27])
 		*gameState=QUIT;
-	// Pausar jogo
-	if(keyState['p'] && cam->gui->canPause && cam->gui->pause==false)
-	{
-		*gameState=PAUSE;
-		cam->gui->canPause=false;
-		cam->gui->pause=true;
-	}
 	// Resetar jogo
 	if(keyState['r'])
 		*gameState=DEAD; // Por enquanto não tem volta
@@ -94,6 +87,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 					else
 					{
 						p1->points++;
+						p1->sword->size+=2;
 						if(p1->sword->size <= SWORD_MAX_SIZE)
 							p1->sword->size+=SWORD_INCREMENT;
 					}
@@ -144,7 +138,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        else
 		        	p1->vy=-p1->vmax;
 
-		        p1->sword->rotation=-90;
+		        p1->sword->rotation=270;
 			}
 			if(keyState[(int)('d')])
 		    {

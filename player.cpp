@@ -8,10 +8,8 @@ Sword::Sword(double width,double height)
 	this->x=width/2;
 	this->y=height/2;
 	this->size=100;
-	this->fixed_width=this->size;
-	this->rotation=-90;
-	this->xoffset=20;
-	this->yoffset=20;
+	this->fixed_width=50;
+	this->rotation=0;
 }
 
 Player::Player(double width,double height)

@@ -124,17 +124,7 @@ void stateMachine()
         break;
 
         case PAUSE:
-			glutTimerFunc(1000,enablePause,0);
-			if(cam.gui->canPause)
-			{
-				if(keyState['p'] && cam.gui->pause==true)
-				{
-					gameState=GAME_0;
-					cam.gui->canPause=false;
-					cam.gui->pause=false;
-					glutTimerFunc(1000,enablePause,0);
-				}
-			}
+			
         break;
         
         case GAME_0:
@@ -152,6 +142,19 @@ void update_callback(int x)
 }
 
 void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
+    
+   	if(key=='p' && gameState!=PAUSE && gameState!=MENU)
+   	{
+   		gameState = PAUSE;
+		cam.gui->pause=true;
+   	}
+	else if(key=='p' && gameState==PAUSE)
+	{
+		gameState=GAME_0;
+		cam.gui->pause=false;
+	}
+
+
     if(gameState==MENU && key==27)
         exit(0);
 

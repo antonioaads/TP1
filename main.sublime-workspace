@@ -1,0 +1,893 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"draw",
+				"drawOverlay"
+			],
+			[
+				"QUI",
+				"QUITGREYED"
+			],
+			[
+				"QUIT",
+				"QUITBRIGHTYES"
+			],
+			[
+				"o",
+				"objCount"
+			],
+			[
+				"G",
+				"GAME_0"
+			],
+			[
+				"game",
+				"gameState"
+			],
+			[
+				"drawO",
+				"drawOverlay"
+			],
+			[
+				"true",
+				"truePlayer"
+			],
+			[
+				"SWORD",
+				"SWORD_MAX_SIZE"
+			],
+			[
+				"GA",
+				"GAME_0"
+			],
+			[
+				"rest",
+				"restartX"
+			],
+			[
+				"se",
+				"selector"
+			],
+			[
+				"RES",
+				"RESTARTGREYED"
+			],
+			[
+				"RE",
+				"RESTARTBRIGHT"
+			],
+			[
+				"text",
+				"textureGUI"
+			],
+			[
+				"res",
+				"restartY"
+			],
+			[
+				"textu",
+				"texturePlayer"
+			],
+			[
+				"REST",
+				"RESTARTGREYED"
+			],
+			[
+				"SOI",
+				"SOIL_LOAD_AUTO"
+			],
+			[
+				"tex",
+				"textureRestartGreyed"
+			],
+			[
+				"frame",
+				"frame_orientation"
+			],
+			[
+				"SW",
+				"SWORD_INCREMENT"
+			],
+			[
+				"do",
+				"double"
+			],
+			[
+				"texture",
+				"textureBackground"
+			],
+			[
+				"te",
+				"textures"
+			],
+			[
+				"loc",
+				"localy"
+			],
+			[
+				"lo",
+				"localx"
+			],
+			[
+				"p1",
+				"p1Sword"
+			],
+			[
+				"GAME",
+				"GAME_0"
+			],
+			[
+				"Gl",
+				"GLuint"
+			],
+			[
+				"w",
+				"WIDTH"
+			],
+			[
+				"MA",
+				"MAP_BORDER"
+			],
+			[
+				"map",
+				"map_border"
+			],
+			[
+				"COLLECTABLE_TY",
+				"COLLECTABLE_TYPE_COUNT"
+			],
+			[
+				"C",
+				"COLLECTABLE_TYPE"
+			],
+			[
+				"ma",
+				"map_limits_y"
+			],
+			[
+				"m",
+				"multiply_speed"
+			],
+			[
+				"M",
+				"MAX_COLLECTABLES"
+			],
+			[
+				"SOIL",
+				"SOIL_load_OGL_texture"
+			],
+			[
+				"obj",
+				"objArray"
+			],
+			[
+				"mul",
+				"multiply_speed"
+			],
+			[
+				"ke",
+				"keyState"
+			],
+			[
+				"textura",
+				"texturePlayer"
+			],
+			[
+				"GL",
+				"GLuint"
+			],
+			[
+				"last",
+				"lasty"
+			],
+			[
+				"x",
+				"xaxis"
+			],
+			[
+				"v",
+				"vmax"
+			],
+			[
+				"inc",
+				"include"
+			],
+			[
+				"numb",
+				"numberB"
+			],
+			[
+				"num",
+				"numberA"
+			],
+			[
+				"texturaPl",
+				"texturaPlayer_walk"
+			],
+			[
+				"cb_",
+				"cb_attacking"
+			],
+			[
+				"co",
+				"cooldown"
+			],
+			[
+				"can",
+				"can_change"
+			],
+			[
+				"f",
+				"firstAnimation"
+			],
+			[
+				"K",
+				"K_CBINIT"
+			],
+			[
+				"vx",
+				"vxplus"
+			],
+			[
+				"texturaPlayer_co",
+				"texturaPlayer_combatIdle"
+			],
+			[
+				"fram",
+				"frame_delay_max"
+			],
+			[
+				"K_CB",
+				"K_CBINIT"
+			],
+			[
+				"key",
+				"key_state"
+			],
+			[
+				"teut",
+				"texturaPlayer_combatInit"
+			],
+			[
+				"texturaPla",
+				"texturaPlayer"
+			],
+			[
+				"glut",
+				"glutPostRedisplay"
+			],
+			[
+				"b_",
+				"b_add"
+			],
+			[
+				"b",
+				"b_mode"
+			],
+			[
+				"g",
+				"gplus"
+			],
+			[
+				"gl",
+				"glColor3f"
+			],
+			[
+				"glu",
+				"glutPostRedisplay"
+			],
+			[
+				"texturaPlayer_wa",
+				"texturaPlayer_walk"
+			],
+			[
+				"pl",
+				"texturaPlayer"
+			],
+			[
+				"tota",
+				"total_frame"
+			],
+			[
+				"dese",
+				"desenha_idle"
+			],
+			[
+				"dash",
+				"dash_speed"
+			],
+			[
+				"das",
+				"dash_speed"
+			],
+			[
+				"texutra",
+				"texturaPlayer_idle2"
+			],
+			[
+				"K_",
+				"K_UP"
+			],
+			[
+				"pfra",
+				"pframe"
+			],
+			[
+				"pfr",
+				"pframe"
+			],
+			[
+				"pf",
+				"ptotal_frame"
+			],
+			[
+				"pframe_dela",
+				"pframe_delay_max"
+			],
+			[
+				"texturaBackground_overl",
+				"texturaBackground_overlay"
+			],
+			[
+				"bg",
+				"bg_overlay"
+			],
+			[
+				"bg_over",
+				"bg_overlay0"
+			],
+			[
+				"texturaBackground_over",
+				"texturaBackground_overlay"
+			],
+			[
+				"GR",
+				"GROUNDY"
+			],
+			[
+				"texturaB",
+				"texturaBackground"
+			],
+			[
+				"texturaBack",
+				"texturaBackground_overlay0"
+			],
+			[
+				"glE",
+				"glEnd"
+			],
+			[
+				"texturaPlayer_w",
+				"texturaPlayer_walk0R"
+			],
+			[
+				"p",
+				"pstate"
+			],
+			[
+				"def",
+				"define"
+			],
+			[
+				"pframe_",
+				"pframe_delay_max"
+			],
+			[
+				"pfram",
+				"pframe_delay"
+			],
+			[
+				"panim",
+				"panim_q"
+			],
+			[
+				"teclado",
+				"teclado_up"
+			],
+			[
+				"y",
+				"yolo_mode"
+			],
+			[
+				"pos",
+				"posY"
+			],
+			[
+				"foo",
+				"foodY"
+			],
+			[
+				"food",
+				"foodY"
+			],
+			[
+				"ga",
+				"gameOver"
+			],
+			[
+				"grid",
+				"gridY-1"
+			],
+			[
+				"gri",
+				"gridX"
+			],
+			[
+				"Uni",
+				"UnionFind"
+			],
+			[
+				"fil",
+				"filhodir"
+			],
+			[
+				"prod",
+				"prodDir"
+			],
+			[
+				"fi",
+				"filhoesq"
+			],
+			[
+				"filh",
+				"filhodir"
+			],
+			[
+				"filho",
+				"filhoesq"
+			],
+			[
+				"un",
+				"UnionFind"
+			],
+			[
+				"Union",
+				"unionSet"
+			],
+			[
+				"de",
+				"destino"
+			],
+			[
+				"pri",
+				"primos"
+			],
+			[
+				"cou",
+				"count"
+			],
+			[
+				"i",
+				"i"
+			],
+			[
+				"save",
+				"save_count"
+			],
+			[
+				"acc",
+				"acc_count"
+			],
+			[
+				"nmb",
+				"nmbt"
+			],
+			[
+				"n",
+				"n"
+			],
+			[
+				"el",
+				"el"
+			],
+			[
+				"pr",
+				"prx"
+			],
+			[
+				"op",
+				"op"
+			],
+			[
+				"en",
+				"endl"
+			],
+			[
+				"desre",
+				"desrep"
+			],
+			[
+				"med",
+				"med"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"Preferences: Key Bindings"
+			]
+		],
+		"width": 392.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/home/rodrigo/Área de Trabalho/CG",
+		"/home/rodrigo/Área de Trabalho/CG/TP1"
+	],
+	"file_history":
+	[
+		"/home/rodrigo/Área de Trabalho/CG/TP1/main.sublime-project",
+		"/home/rodrigo/Área de Trabalho/django",
+		"/home/rodrigo/djangoproject/Django-1.11.4/src/shortener/models.py",
+		"/home/rodrigo/djangoproject/Django-1.11.4/src/shortener/admin.py",
+		"/home/rodrigo/djangoproject/Django-1.11.4/src/kirr/settings.py",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/main.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/objects.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/objects.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/physics.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/physics.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/player.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/player.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/draw.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/draw.h",
+		"/home/rodrigo/Área de Trabalho/MHworld.txt",
+		"/home/rodrigo/Área de Trabalho/SDL_mixer 2.0/sdl.c",
+		"/home/rodrigo/Área de Trabalho/sdl.c",
+		"/home/rodrigo/Downloads/ase/aseprite-1.2-beta6/build/CMakeFiles/feature_tests.cxx",
+		"/home/rodrigo/Downloads/ase/aseprite-1.2-beta6/build/CMakeCache.txt",
+		"/home/rodrigo/Downloads/hs_err_pid5719.log",
+		"/home/rodrigo/Downloads/ase/aseprite-1.1.13/data/docs/LICENSES.md",
+		"/home/rodrigo/Downloads/ase/aseprite-1.1.13/data/README.md",
+		"/home/rodrigo/Downloads/ase/aseprite-1.1.13/data/palettes/edg16.gpl",
+		"/home/rodrigo/Downloads/ase/aseprite-1.1.13/data/palettes/coolors01.gpl",
+		"/home/rodrigo/Downloads/ase/aseprite-1.1.13/data/palettes/cga.gpl",
+		"/home/rodrigo/Downloads/ase/aseprite-1.1.13/data/palettes/smile-basic.gpl",
+		"/home/rodrigo/.cache/.fr-EkoMI9/demos/README",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/objects.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/objects.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/main.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/draw.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/draw.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/physics.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/physics.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/player.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1 (herança)/player.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/out.txt",
+		"/home/rodrigo/Área de Trabalho/gdb",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/readme.md",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/global.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/global.h",
+		"/home/rodrigo/Área de Trabalho/git",
+		"/home/rodrigo/Área de Trabalho/CG/sprite/main.c",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/input.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/input.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/snake/game.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/snake/main.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/template/module.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/utils.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/utils.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/gamestate.h",
+		"/home/rodrigo/Área de Trabalho/CG/template/input.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/main.c",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/backup_day_one.BAK",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/b.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/b.c",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/a.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/a.c",
+		"/home/rodrigo/Área de Trabalho/CG/cefet-cg-exemplos-opengl-master/animacao-segue-mouse/main.c",
+		"/home/rodrigo/Área de Trabalho/CG/template/b.c",
+		"/home/rodrigo/Área de Trabalho/CG/template/b.h",
+		"/home/rodrigo/Área de Trabalho/CG/template/a.c",
+		"/home/rodrigo/Área de Trabalho/CG/template/headertemplate.h",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/backup_day_one.c",
+		"/home/rodrigo/Área de Trabalho/CG/template/main.c",
+		"/home/rodrigo/Área de Trabalho/CG/GLFW/teste.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/GLFW/teste2.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/TP1/backup.c",
+		"/home/rodrigo/Área de Trabalho/CG/Lista1/quadrados_coloridos/Makefile",
+		"/home/rodrigo/Área de Trabalho/CG/cg.c",
+		"/home/rodrigo/Área de Trabalho/CG/template/module.c",
+		"/home/rodrigo/Área de Trabalho/CG/Lista1/poligo/Makefile",
+		"/home/rodrigo/Área de Trabalho/CG/cefet-cg-exemplos-opengl-master/composicao-transformacoes/Makefile/Makefile",
+		"/home/rodrigo/Área de Trabalho/CG/cefet-cg-exemplos-opengl-master/README.md",
+		"/media/rodrigo/Dados/V Escola de Inverno/class 5/B_BFSgrafo_implicito.cpp",
+		"/media/rodrigo/Dados/V Escola de Inverno/class 5/C_kruskal.cpp",
+		"/media/rodrigo/Dados/V Escola de Inverno/class 5/exp_rapida.cpp",
+		"/media/rodrigo/Dados/V Escola de Inverno/class 5/seg_tree.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/template/module.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/sprite/teste/main.c",
+		"/home/rodrigo/Área de Trabalho/CG/Lista1/comando",
+		"/home/rodrigo/Área de Trabalho/CG/Lista1/Q3.c",
+		"/home/rodrigo/Área de Trabalho/CG/Lista1/Q1.c",
+		"/home/rodrigo/Área de Trabalho/CG/Lista1/Q2.c",
+		"/home/rodrigo/glfw-3.2.1/README.md",
+		"/home/rodrigo/Área de Trabalho/CG/SOIL/soil_main.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/sprite/spr_divided/anim.c",
+		"/home/rodrigo/Área de Trabalho/CG/sprite/spr_divided/anim.h",
+		"/home/rodrigo/Área de Trabalho/CG/sprite/spr_divided/main.c",
+		"/home/rodrigo/Área de Trabalho/TP1/README",
+		"/home/rodrigo/Área de Trabalho/TP1/Errata",
+		"/home/rodrigo/Área de Trabalho/TP1/Sniper Shot/src/desenharcena.cpp",
+		"/home/rodrigo/Área de Trabalho/TP1/Sniper Shot/obj/Debug/armas.o",
+		"/home/rodrigo/Downloads/aseprite-1.1.13/INSTALL.md",
+		"/home/rodrigo/Área de Trabalho/CG/BASIC.txt",
+		"/usr/lib/eclipse/eclipse.ini",
+		"/home/rodrigo/Área de Trabalho/CG/soil.cpp",
+		"/home/rodrigo/Downloads/idea-IC-172.3544.35/Install-Linux-tar.txt",
+		"/home/rodrigo/log.txt",
+		"/home/rodrigo/Área de Trabalho/CG/basic_forms.cpp",
+		"/home/rodrigo/Área de Trabalho/CG/snake/game.h",
+		"/home/rodrigo/Downloads/jre1.8.0_144/README",
+		"/home/rodrigo/.cache/.fr-JSQb0H/Spriter R9 Pro/Serial Keys.txt",
+		"/home/rodrigo/Área de Trabalho/CG/snake/main.c",
+		"/home/rodrigo/Área de Trabalho/CG/snake/game.c",
+		"/home/rodrigo/Área de Trabalho/CG/try.c",
+		"/home/rodrigo/Área de Trabalho/CG/random.c",
+		"/home/rodrigo/Área de Trabalho/cg.c",
+		"/home/rodrigo/Área de Trabalho/us",
+		"/home/rodrigo/Área de Trabalho/input",
+		"/home/rodrigo/Área de Trabalho/Documento sem título",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class 5/seg_tree.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/contest links.txt",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class 5/A_exp_rapida.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class 5/G.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class 5/C_kruskal.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class 5/C.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class 5/B_BFSgrafo_implicito.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class 5/B.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class 5/A.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class4/robo.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class4/A.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class4/I.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class4/dijkstra.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class4/H.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class3/dfs.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class3/union_find.cpp",
+		"/home/rodrigo/Área de Trabalho/V Escola de Inverno/class2/priority_queue.cpp"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"quit",
+			"restart",
+			"RESTART",
+			"restart",
+			"input",
+			"map_border",
+			"cam.gui.",
+			"p1.gui",
+			"restart",
+			"gui",
+			"colided",
+			"gameSta",
+			"p1.sword.",
+			"p1->sword->",
+			"colided",
+			"yof",
+			"xof",
+			"pall",
+			"keySta",
+			"objArray[x].",
+			"MAP",
+			"objArray[x].",
+			"p1.",
+			"initOb",
+			"cam.",
+			"p1.",
+			"MAP",
+			"firstAnimation",
+			"K_K",
+			"yolo_activate",
+			"p1.frame",
+			"walk0",
+			"  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);\n",
+			"ptotal_frame",
+			"pframe",
+			"pstate",
+			"pgroundy",
+			"pvy",
+			"pvx",
+			"pdir",
+			"plast_x",
+			"py",
+			"px",
+			"GROUNDY",
+			"size",
+			"grav",
+			"vy",
+			"vx",
+			"i",
+			"v[",
+			"pb",
+			"f",
+			"cont",
+			"can"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+			"pause",
+			"quit",
+			"QUIT",
+			"quit",
+			"QUIT",
+			"quit",
+			"200",
+			"cam.gui->",
+			"cam.gui",
+			"p1.sword->",
+			"p1.sword.",
+			"yof",
+			"xof",
+			"objArray[x]->",
+			"p1->",
+			"cam->",
+			"p1->",
+			"cb_transformFirst",
+			"K_DASH",
+			"y_mode",
+			"p1.ptotal_frame",
+			"p1.pframe",
+			"p1.pstate",
+			"p1.pgroundy",
+			"p1.pvy",
+			"p1.pvx",
+			"p1.pdir",
+			"p1.plast_x",
+			"p1.py",
+			"p1.px",
+			"pgroundy",
+			"GRAV",
+			"pvy",
+			"pvx",
+			"grafo[",
+			"push_back",
+			"aux",
+			"c"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 22.0
+	},
+	"input":
+	{
+		"height": 30.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "",
+	"project": "main.sublime-project",
+	"replace":
+	{
+		"height": 62.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": false,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 229.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
