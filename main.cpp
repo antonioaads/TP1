@@ -30,7 +30,8 @@
 enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
 enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
 enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON};
-enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE}; 
+enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE};
+enum MENU_SELECTION{START=0,EXIT};
 
 using namespace std;
 
@@ -40,6 +41,7 @@ using namespace std;
 // Inicializar variavel
     bool keyState[300];
     int gameState=MENU;
+    int menuSelection=0;
 
 // Instanciar classes
     Player p1(WIDTH,HEIGHT);
@@ -53,7 +55,7 @@ using namespace std;
     GLuint textureBackground;
     GLuint textureCollectables[10];
     GLuint textureGUI[20];
-    GLuint textureMenu;
+    GLuint textureMenu[2];
 
 void importTextures()
 {
@@ -75,7 +77,8 @@ void importTextures()
     textureGUI[TEXPAUSE] = SOIL_load_OGL_texture("tex/pauseb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[PIXIE] = SOIL_load_OGL_texture("tex/pix.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[DEMON] = SOIL_load_OGL_texture("tex/littled.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureMenu = SOIL_load_OGL_texture("tex/menu.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureMenu[START] = SOIL_load_OGL_texture("tex/menuSTART.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureMenu[EXIT] = SOIL_load_OGL_texture("tex/menuEXIT.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
 
     if (texturePlayer == 0) 
       printf("Erro do SOIL: '%s'\n", SOIL_last_result());
@@ -115,11 +118,13 @@ void stateMachine()
     switch(gameState)
     {
         case MENU:
-        	if(keyState[' '])
-			{
-				gameState=GAME_0;
-				reset(&p1,&cam,objArray,MAX_COLLECTABLES);
-			}
+      	  if(keyState[' '] && menuSelection==0)
+				{
+					gameState=GAME_0;
+					reset(&p1,&cam,objArray,MAX_COLLECTABLES);
+				}
+			if(keyState[' '] && menuSelection==1)
+				exit(0);
         break;
 
         case QUIT:
@@ -178,22 +183,42 @@ void update_callback(int x)
 
 void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
     
-   	if(key=='p' && gameState!=PAUSE && gameState!=MENU)
-   	{
-   		gameState = PAUSE;
-		cam.gui->pause=true;
-   	}
-	else if(key=='p' && gameState==PAUSE)
-	{
-		gameState=GAME_0;
-		cam.gui->pause=false;
-	}
+    switch(gameState)
+    {
+    	case GAME_0:
+	    	// Pause ingame
+		   	if(key=='p' && gameState!=PAUSE && gameState!=MENU)
+		   	{
+		   		gameState = PAUSE;
+				cam.gui->pause=true;
+		   	}
+			else if(key=='p' && gameState==PAUSE)
+			{
+				gameState=GAME_0;
+				cam.gui->pause=false;
+			}
+		break;
+
+		case MENU:
+			// Selection menu
+			if(key=='w')
+				menuSelection++;
+			if(key=='s')
+				menuSelection--;
+			if(menuSelection<0)
+				menuSelection=EXIT;
+			if(menuSelection>EXIT)
+				menuSelection=START;
+		break;
+    }
+    
 
 
-    if(gameState==MENU && key==27)
-        exit(0);
+	// Vetor de estados de teclas
+		if(gameState==MENU && key==27)
+		    exit(0);
 
-    keyState[(int)key]=true;
+		keyState[(int)key]=true;
 }
 
 void key_release_callback(unsigned char key,int x,int y){
@@ -279,7 +304,7 @@ void mouse_callback(int button, int state, int x, int y)
 void off_shade(bool canDraw)
 {
 	glColor4f(0,0,0,0.5);
-	drawOverlay(WIDTH/2,HEIGHT/2,0,MAP_BORDERX*2,canDraw,0);
+	drawOverlay(WIDTH/2,HEIGHT/2,0,MAP_BORDERX*2,MAP_BORDERX*2,canDraw,0);
 	glColor4f(1,1,1,1);
 }
 
@@ -290,7 +315,7 @@ void draw_callback(void){
     {
     	case MENU:
     	// Desenha menu inicial
-    		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,true,textureMenu);
+    		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH*1.5,HEIGHT,true,textureMenu[menuSelection]);
 
     	break;
 
@@ -319,11 +344,11 @@ void draw_callback(void){
 
 	  		// Desenha Menus por cima
 		        off_shade(cam.gui->restart);
-	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]); // Restart Button
+	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]); // Restart Button
 	        	off_shade(cam.gui->quit);
-	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->quitSize,cam.gui->quit,textureGUI[cam.gui->textureQuit]); // Quit Button
+	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->quitSize,cam.gui->quitSize,cam.gui->quit,textureGUI[cam.gui->textureQuit]); // Quit Button
 	        	off_shade(cam.gui->pause);
-	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->pauseSize,cam.gui->pause,textureGUI[cam.gui->texturePause]);
+	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->pauseSize,cam.gui->pauseSize,cam.gui->pause,textureGUI[cam.gui->texturePause]);
 	        	
 		break;	
     }

@@ -28,7 +28,7 @@ Player::Player(double width,double height)
 	this->points=0;
 	
 	this->frame=1;
-	this->total_frames=1;
+	this->total_frames=2;
 	this->frame_orientation=1;
 	this->frame_delay=0;
 

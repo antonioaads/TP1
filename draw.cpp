@@ -165,11 +165,12 @@ void drawSword(double x, double y, double z, double size, double fixed_width,dou
 	glPopMatrix();
 }
 
-void drawOverlay(double x, double y, double z, double size, bool canDraw, GLuint texture)
+void drawOverlay(double x, double y, double z, double sizex,double sizey, bool canDraw, GLuint texture)
 {
 	if(canDraw)
 	{
-		size/=2;
+		sizex/=2;
+		sizey/=2;
 	
 		glPushMatrix();
 		
@@ -184,10 +185,10 @@ void drawOverlay(double x, double y, double z, double size, bool canDraw, GLuint
 	  			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	
 			glBegin(GL_TRIANGLE_FAN);
-				glTexCoord2d(0, 0); glVertex3d(-size,-size,z);
-				glTexCoord2d(1, 0); glVertex3d(size,-size,z);
-				glTexCoord2d(1, 1); glVertex3d(size,size,z);
-				glTexCoord2d(0, 1); glVertex3d(-size,size,z);
+				glTexCoord2d(0, 0); glVertex3d(-sizex,-sizey,z);
+				glTexCoord2d(1, 0); glVertex3d(sizex,-sizey,z);
+				glTexCoord2d(1, 1); glVertex3d(sizex,sizey,z);
+				glTexCoord2d(0, 1); glVertex3d(-sizex,sizey,z);
 			glEnd();
 	
 			glDisable(GL_TEXTURE_2D);
