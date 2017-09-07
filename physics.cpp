@@ -74,6 +74,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 	// Calcular colisão
 		bool colided = false;
+		double dist1;
 		
 		for(int x=0;x<objCount;x++)
 		{
@@ -105,7 +106,42 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 			}
 
 			// Colisão com a ESPADA
-			if(objArray[x]->canKill) // se obj canKill então é um inimigo, logo, calcular colisão com a espada
+
+			for(int i=0; i<=p1->sword->size; i+=10){
+					dist1 =sqrt(((rotationConvert(p1->x + i,p1->y,p1->sword->rotation,'x')) - (objArray[x]->x)) * 
+								((rotationConvert(p1->x + i,p1->y,p1->sword->rotation,'x')) - (objArray[x]->x)) +
+								((rotationConvert(p1->x + i,p1->y,p1->sword->rotation,'y')) - (objArray[x]->y)) * 
+								((rotationConvert(p1->x + i,p1->y,p1->sword->rotation,'y')) - (objArray[x]->y)));
+
+
+
+					if(dist1 <= p1->sword->fixed_width/2 + objArray[x]->size/2){
+						colided=true;
+						objArray[x]->isAlive=false;
+						objArray[x]->rePosition();
+
+						if(!p1->fakePlayer)
+						{
+							if(objArray[x]->canKill)
+								*gameState=DEAD;
+							else
+							{
+								p1->points++;
+								p1->sword->size+=2;
+								if(p1->sword->size <= SWORD_MAX_SIZE)
+									p1->sword->size+=SWORD_INCREMENT;
+							}
+						}
+
+						objArray[x]->isAlive=true;
+						cout << "p1_points = \n"<< p1->points << endl;
+
+						//break;
+					}
+
+				}
+
+			/*if(objArray[x]->canKill) // se obj canKill então é um inimigo, logo, calcular colisão com a espada
 			{
 				for(int i=25; i < p1->sword->size; i+=25)
 				{
@@ -122,7 +158,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 							p1->points++;
 					}
 				}
-			}
+			}*/
 
 		}
 
