@@ -159,15 +159,15 @@ void stateMachine()
                 	p1.total_frames=2;
                 }
 
-                if(p1.frame_delay==10)
-	            {
-	                if(p1.frame >= p1.total_frames)
-	                	p1.frame=1;
-	                else
-	                	p1.frame++;
-
-	                p1.frame_delay=0;
-        		}
+                if(p1.frame_delay>=10)
+                {
+                	if(p1.frame<p1.total_frames-1)
+                		p1.frame++;
+                	else
+                		p1.frame=1;
+                	
+                	p1.frame_delay=0;
+                }
         		p1.frame_delay++;
 
         break;
