@@ -18,15 +18,17 @@
 	#include <SDL2/SDL.h>
 	#include <SDL2/SDL_mixer.h>
 
-	#define MUS_PATH "music/tutut.ogg" // OGG(e outros) = música de fundo
+	#define MUS_PATH "music/song3.wav" // OGG(e outros) = música de fundo
 
 #define WIDTH 1024
 #define HEIGHT 768
 #define FPS 60
-#define MAP_BORDER 3000
+#define MAP_BORDERX 8000
+#define MAP_BORDERY 4000
 #define MAX_COLLECTABLES 30
 
 enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
+enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
 enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON};
 enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE}; 
 
@@ -46,6 +48,7 @@ using namespace std;
 
 // Importar texturas
     GLuint texturePlayer;
+    GLuint texturePlayerAnim[4];
     GLuint textureSword;
     GLuint textureBackground;
     GLuint textureCollectables[10];
@@ -54,9 +57,13 @@ using namespace std;
 
 void importTextures()
 {
-    texturePlayer = SOIL_load_OGL_texture("tex/player.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureSword = SOIL_load_OGL_texture("tex/sword.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureBackground = SOIL_load_OGL_texture("tex/background.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    texturePlayerAnim[IDLE] = SOIL_load_OGL_texture("tex/samuraiIDLE.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    texturePlayerAnim[WALK] = SOIL_load_OGL_texture("tex/samuraiWALK.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    texturePlayerAnim[BACKIDLE] = SOIL_load_OGL_texture("tex/samuraiBACKIDLE.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    texturePlayerAnim[BACKWALK] = SOIL_load_OGL_texture("tex/samuraiBACKWALK.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    texturePlayer = texturePlayerAnim[0];
+    textureSword = SOIL_load_OGL_texture("tex/katana.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureBackground = SOIL_load_OGL_texture("tex/bgredish.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[RESTARTGREYED] = SOIL_load_OGL_texture("tex/restartg.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[RESTARTBRIGHT] = SOIL_load_OGL_texture("tex/restartb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[RESTARTBRIGHTYES] = SOIL_load_OGL_texture("tex/restartbY.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
@@ -79,7 +86,7 @@ void init(){
     glClearColor(1,1,1,1);
 
     // Inicializa objetos
-    initObj(objArray,MAX_COLLECTABLES,(double)MAP_BORDER);
+    initObj(objArray,MAX_COLLECTABLES,(double)MAP_BORDERX);
 
     // Importa texturas
     importTextures();
@@ -129,7 +136,35 @@ void stateMachine()
         
         case GAME_0:
             // Physics
-                calculatePhysics(&p1,&cam,keyState,objArray,MAX_COLLECTABLES,MAP_BORDER,&gameState);
+                calculatePhysics(&p1,&cam,keyState,objArray,MAX_COLLECTABLES,MAP_BORDERX,&gameState);
+            // Animation Handling
+                if(keyState['s'] || keyState['d'] || keyState['a'])
+                {
+                	texturePlayer=texturePlayerAnim[WALK];
+                	p1.total_frames=3;
+                }
+                if(keyState['w'])
+                {
+                	texturePlayer=texturePlayerAnim[BACKWALK];
+                	p1.total_frames=3;
+                }
+                if(!(keyState['s'] || keyState['d'] || keyState['a'] || keyState['w']))
+                {
+                	texturePlayer=texturePlayerAnim[IDLE];
+                	p1.total_frames=2;
+                }
+
+                if(p1.frame_delay==10)
+	            {
+	                if(p1.frame >= p1.total_frames)
+	                	p1.frame=1;
+	                else
+	                	p1.frame++;
+
+	                p1.frame_delay=0;
+        		}
+        		p1.frame_delay++;
+
         break;
     }
 }
@@ -244,7 +279,7 @@ void mouse_callback(int button, int state, int x, int y)
 void off_shade(bool canDraw)
 {
 	glColor4f(0,0,0,0.5);
-	drawOverlay(WIDTH/2,HEIGHT/2,0,MAP_BORDER*2,canDraw,0);
+	drawOverlay(WIDTH/2,HEIGHT/2,0,MAP_BORDERX*2,canDraw,0);
 	glColor4f(1,1,1,1);
 }
 
@@ -265,7 +300,7 @@ void draw_callback(void){
     	case GAME_0:
     		// Desenhar Background
 		        glColor3f(1,1,1);
-		        drawBg(WIDTH/2, HEIGHT/2,0, MAP_BORDER, &cam, true, textureBackground);
+		        drawBg(WIDTH/2, HEIGHT/2,0, MAP_BORDERX,MAP_BORDERY, &cam, true, textureBackground);
 
 		    // Desenha Itens
 		        glColor3f(1,1,1);
@@ -279,9 +314,8 @@ void draw_callback(void){
 
 	  		// Desenhar Player e Espada
 		        glColor3f(1, 1, 1);
-		        drawPlayer(p1.localx,p1.localy,0,p1.size,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
+		        drawPlayer(p1.localx,p1.localy,0,p1.sizex,p1.sizey,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
 		        drawSword(p1.localx,p1.localy,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword,1,1,1);
-	        //drawSword((p1.sword->x+p1.sword->size)*cos(p1.sword->rotation*360/M_PI), (p1.sword->y+p1.sword->fixed_width)*sin(p1.sword->rotation*360/M_PI),0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,0,1,1,1);
 
 	  		// Desenha Menus por cima
 		        off_shade(cam.gui->restart);

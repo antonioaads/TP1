@@ -23,12 +23,14 @@ Player::Player(double width,double height)
 	this->lastx=this->x;
 	this->lasty=this->y;
 	
-	this->size=100;
+	this->sizey=100;
+	this->sizex=75;
 	this->points=0;
 	
 	this->frame=1;
 	this->total_frames=1;
 	this->frame_orientation=1;
+	this->frame_delay=0;
 
 	this->sword=new Sword(width,height);
 

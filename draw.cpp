@@ -6,7 +6,7 @@
 
 using namespace std;
 
-void drawBg(double x, double y, double z, double size,Camera *cam, bool canDraw, GLuint texture)
+void drawBg(double x, double y, double z, double sizex,double sizey,Camera *cam, bool canDraw, GLuint texture)
 {
 	/*
 		A ideia aqui é transladar todo o fundo/objetos de acordo com o input/movimentação do player
@@ -15,7 +15,8 @@ void drawBg(double x, double y, double z, double size,Camera *cam, bool canDraw,
 
 	if(!canDraw) return;
 	
-	size/=2;
+	sizex/=2;
+	sizey/=2;
 	
 	glPushMatrix();
 	
@@ -30,10 +31,10 @@ void drawBg(double x, double y, double z, double size,Camera *cam, bool canDraw,
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		
 		glBegin(GL_TRIANGLE_FAN);
-			glTexCoord2d(0,0); glVertex3d(-size,-size,0);
-			glTexCoord2d(1,0); glVertex3d(size,-size,0);
-			glTexCoord2d(1,1); glVertex3d(size,size,0);
-			glTexCoord2d(0,1); glVertex3d(-size,size,0);
+			glTexCoord2d(0,0); glVertex3d(-sizex,-sizey,0);
+			glTexCoord2d(1,0); glVertex3d(sizex,-sizey,0);
+			glTexCoord2d(1,1); glVertex3d(sizex,sizey,0);
+			glTexCoord2d(0,1); glVertex3d(-sizex,sizey,0);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
@@ -82,13 +83,14 @@ void drawObject(double x, double y, double z, double size,Camera *cam, bool canD
 	glPopMatrix();
 }
 
-void drawPlayer(double x, double y, double z, double size, double degree, GLuint texture,int frame,int total_frames,int frame_orientation)
+void drawPlayer(double x, double y, double z, double sizex,double sizey, double degree, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	/*
 		Nesta função, a origem é transladada para a posição local do player e utilizada como referencia para desenhar o mesmo a partir do centro
 		(referencia no meio do personagem)
 	*/
-	size/=2;
+	sizex/=2;
+	sizey/=2;
 
 	glPushMatrix();
 	
@@ -107,10 +109,10 @@ void drawPlayer(double x, double y, double z, double size, double degree, GLuint
   			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	
 		glBegin(GL_TRIANGLE_FAN);
-			glTexCoord2d(0, 0); glVertex3d(-size,-size,z);
-			glTexCoord2d(frame*(1/total_frames), 0); glVertex3d(size,-size,z);
-			glTexCoord2d(frame*(1/total_frames), frame*(1/total_frames)); glVertex3d(size,size,z);
-			glTexCoord2d(0, frame*(1/total_frames)); glVertex3d(-size,size,z);
+			glTexCoord2d((frame-1)*((double)1/total_frames), 0); glVertex3d(-sizex,-sizey,z);
+			glTexCoord2d(frame*((double)1/total_frames), 0); glVertex3d(sizex,-sizey,z);
+			glTexCoord2d(frame*((double)1/total_frames),1); glVertex3d(sizex,sizey,z);
+			glTexCoord2d((frame-1)*((double)1/total_frames), 1); glVertex3d(-sizex,sizey,z);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);

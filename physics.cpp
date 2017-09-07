@@ -1,5 +1,6 @@
 #include "player.h"
 #include "objects.h"
+#include "draw.h"
 #include <iostream>
 #include <math.h>
 
@@ -52,6 +53,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 	// Resetar jogo
 	if(keyState['r'])
 		*gameState=DEAD; // Por enquanto não tem volta
+	if(keyState['+'])
+		p1->sword->size++;
 
 	// Pausar o jogo
 	/*if(keyState['p'] && canPause)
@@ -71,10 +74,10 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		for(int x=0;x<objCount;x++)
 		{
 			// Colisão com o JOGADOR
-			if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->size/2 < p1->x+p1->size/2 
-									&& objArray[x]->x + objArray[x]->size/2 > p1->x-p1->size/2 
-									&& objArray[x]->y - objArray[x]->size/2 < p1->y+p1->size/2 
-									&& objArray[x]->y + objArray[x]->size/2 > p1->y-p1->size/2)
+			if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->size/2 < p1->x+p1->sizex/2 
+									&& objArray[x]->x + objArray[x]->size/2 > p1->x-p1->sizex/2 
+									&& objArray[x]->y - objArray[x]->size/2 < p1->y+p1->sizey/2 
+									&& objArray[x]->y + objArray[x]->size/2 > p1->y-p1->sizey/2)
 			{
 				colided=true;
 				objArray[x]->isAlive=false;
@@ -96,21 +99,27 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 				objArray[x]->isAlive=true;
 				cout << "p1_points = \n"<< p1->points << endl;
 			}
+
 			// Colisão com a ESPADA
-			/*if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->size/2 < (p1->sword->x+p1->sword->size)*cos(p1->sword->rotation*360/M_PI)
-									&& objArray[x]->x + objArray[x]->size/2 > 0 
-									&& objArray[x]->y - objArray[x]->size/2 < (p1->sword->y+p1->sword->fixed_width)*sin(p1->sword->rotation*360/M_PI)
-									&& objArray[x]->y + objArray[x]->size/2 > 0)
+			if(objArray[x]->canKill) // se obj canKill então é um inimigo, logo, calcular colisão com a espada
 			{
-				colided=true;
-				objArray[x]->isAlive=false;
-				p1->points++;
-				p1->sword->size+=SWORD_INCREMENT;
-				objArray[x]->rePosition();
-				if(objArray[x]->canKill)
-					reset(p1,cam,gameState);
-				cout << "p1_points = \n"<< p1->points << endl;
-			}*/
+				for(int i=25; i < p1->sword->size; i+=25)
+				{
+					double dist_btw_pts=sqrt( pow( rotationConvert(i,0,p1->sword->rotation*M_PI/180,'x') - objArray[x]->x ,2) + 
+												pow( rotationConvert(i,0,p1->sword->rotation*M_PI/180,'y') - objArray[x]->y ,2) );
+
+					if(dist_btw_pts <= 2*(p1->sword->fixed_width/2 + objArray[x]->size/2))
+					{
+						cout << "KILLINGMACHINE" << endl;
+						objArray[x]->isAlive=false;
+						objArray[x]->rePosition();
+
+						if(!p1->fakePlayer)
+							p1->points++;
+					}
+				}
+			}
+
 		}
 
 		/*cout<<"p1->xaxis = "<<p1->xaxis<<endl;
