@@ -30,9 +30,10 @@
 
 enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
 enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
-enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON};
-enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT};
+enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON,MIKO,KITSUNE};
+enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT,MOLDURA};
 enum MENU_SELECTION{START=0,EXIT};
+enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
 
 using namespace std;
 
@@ -55,6 +56,7 @@ using namespace std;
     GLuint textureSword;
     GLuint textureBackground;
     GLuint textureCollectables[10];
+    GLuint textureShadowblob;
     GLuint textureGUI[20];
     GLuint textureMenu[2];
 
@@ -78,8 +80,12 @@ void importTextures()
     textureGUI[TEXPAUSE] = SOIL_load_OGL_texture("tex/pauseb.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[WOODPLATE] = SOIL_load_OGL_texture("tex/wood.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureGUI[PORTRAIT] = SOIL_load_OGL_texture("tex/samuraiFACE.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureGUI[MOLDURA] = SOIL_load_OGL_texture("tex/moldura.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[PIXIE] = SOIL_load_OGL_texture("tex/pix.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureCollectables[DEMON] = SOIL_load_OGL_texture("tex/littled.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureCollectables[DEMON] = SOIL_load_OGL_texture("tex/demonWALK.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureCollectables[MIKO] = SOIL_load_OGL_texture("tex/mikospiritWALK.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureCollectables[KITSUNE] = SOIL_load_OGL_texture("tex/kitsune.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureShadowblob = SOIL_load_OGL_texture("tex/shadow.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[START] = SOIL_load_OGL_texture("tex/menuSTART.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[EXIT] = SOIL_load_OGL_texture("tex/menuEXIT.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
 
@@ -92,7 +98,7 @@ void init(){
     glClearColor(1,1,1,1);
 
     // Inicializa objetos
-    initObj(objArray,MAX_COLLECTABLES,(double)MAP_BORDERX);
+    initObj(objArray,MAX_COLLECTABLES,(double)MAP_BORDERY);
 
     // Importa texturas
     importTextures();
@@ -183,6 +189,20 @@ void stateMachine()
                 }
         		cam.gui->portraitframe_delay++;
 
+        		// Enemies
+        		for(int x=0; x<MAX_COLLECTABLES;x++)
+        		{
+		    		if(objArray[x]->frame_delay>=10)
+		            {
+		            	if(objArray[x]->frame<objArray[x]->total_frames-1)
+		            		objArray[x]->frame++;
+		            	else
+		            		objArray[x]->frame=1;
+
+		            	objArray[x]->frame_delay=0;
+		            }
+		    		objArray[x]->frame_delay++;
+		    	}
 
         break;
     }
@@ -206,6 +226,10 @@ void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
 		   		gameState = PAUSE;
 				cam.gui->pause=true;
 		   	}
+		   	if(key=='x' && p1.sword->swordMode==SWORD_KEY)
+		   		p1.sword->swordMode=SWORD_MOUSE;
+		   	else if(key=='x')
+		   		p1.sword->swordMode=SWORD_KEY;
 		break;
 
 		case PAUSE:
@@ -243,6 +267,27 @@ void passive_mouse_callback(int x, int y){
 	/*
 		Lembrete ultra fcking importante: Coordenadas do mouse tem como origem o canto superior esquerdo da tela WTF
 	*/
+
+	y=HEIGHT-y; // transladar/inverter origem do mouse  ||  daqui em diante... lembrete não mais tão necessário assim
+
+	if(p1.sword->swordMode==SWORD_MOUSE && x-p1.x+y-p1.y!=0)
+	{
+		double senteta=(y-p1.y)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2));
+		double costeta=(x-p1.x)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2));
+		double teta=asin(modulo((y-p1.y)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2))))*180/M_PI;
+
+		if(senteta>=0 && costeta>=0)
+			p1.sword->rotation=teta;
+		else if(senteta>=0 && costeta<=0)
+			p1.sword->rotation=180-teta;
+		else if(senteta<=0 && costeta<=0)
+			p1.sword->rotation=teta+180;
+		else
+			p1.sword->rotation=360-teta;
+	}
+
+	cout << "mouse(X,Y): ("<< x << ","<< y << ")  d(X,Y)=(" << x-p1.x << ","<< y-p1.y << ")  theta: " << acos((x-p1.x)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2)))*180/M_PI << endl;
+
 	if(gameState==DEAD)
 	{
 		if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX-cam.gui->restartSize/2
@@ -251,10 +296,10 @@ void passive_mouse_callback(int x, int y){
 		   	cam.gui->textureRestart=RESTARTBRIGHT;
 
 		   	// YES
-		   	if(x<cam.gui->restartX && x>cam.gui->restartX-cam.gui->restartSize/2 && y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY)
+		   	if(x<cam.gui->restartX && x>cam.gui->restartX-cam.gui->restartSize/2 && y>cam.gui->restartY-cam.gui->restartSize/2 && y<cam.gui->restartY)
 				cam.gui->textureRestart=RESTARTBRIGHTYES;
 			// NO
-			else if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX  && y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY)
+			else if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX  && y>cam.gui->restartY-cam.gui->restartSize/2 && y<cam.gui->restartY)
 				cam.gui->textureRestart=RESTARTBRIGHTNO;
 		}
 		else
@@ -269,10 +314,10 @@ void passive_mouse_callback(int x, int y){
 		   	cam.gui->textureQuit=QUITBRIGHT;
 
 		   	// YES
-		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
+		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y>cam.gui->quitY-cam.gui->quitSize/2 && y<cam.gui->quitY)
 				cam.gui->textureQuit=QUITBRIGHTYES;
 			// NO
-			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
+			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y>cam.gui->quitY-cam.gui->quitSize/2 && y<cam.gui->quitY)
 				cam.gui->textureQuit=QUITBRIGHTNO;
 		}
 		else
@@ -346,29 +391,47 @@ void draw_callback(void){
     	case GAME_0:
     		// Desenhar Background
 		        glColor3f(1,1,1);
-		        drawBg(WIDTH/2, HEIGHT/2,0, MAP_BORDERX,MAP_BORDERY, &cam, true, textureBackground);
+		        drawBg(0,0,0, MAP_BORDERX,MAP_BORDERY, &cam, true, textureBackground);
 
 		    // Desenha Itens
 		        glColor3f(1,1,1);
 		        for(int x=0;x<MAX_COLLECTABLES;x++)
 		        {
+		        	// Sombra
+		        		glColor4f(1,1,1,0.5);
+		        		drawObject(objArray[x]->x, (objArray[x]->y-objArray[x]->size/2), 0, 50, &cam, true, textureShadowblob,1,1,1);
+		        		glColor4f(1,1,1,1);
 		        	if(dynamic_cast<Pixie*>(objArray[x])) // Semelhante a "instanceof" (pelo que entendi, tenta reduzir o objeto "genérico" ao tipo Pixie, se der bom, retorna true, se não, false)
-		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[PIXIE],1,1,objArray[x]->frame_orientation);	
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[PIXIE],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);	
 		        	if(dynamic_cast<Demon*>(objArray[x]))
-		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[DEMON],1,1,objArray[x]->frame_orientation);
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[DEMON],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
+		            if(dynamic_cast<Miko*>(objArray[x]))
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[MIKO],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
+		            if(dynamic_cast<Kitsune*>(objArray[x]))
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[KITSUNE],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
 		        }
 
 	  		// Desenhar Player e Espada
-		        glColor3f(1, 1, 1);
-		        drawPlayer(p1.localx,p1.localy,0,p1.sizex,p1.sizey,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
+		        // Sombra
+	        		glColor4f(1,1,1,0.5);
+	        		drawOnScreen(p1.localx, (p1.localy-p1.sizex/2-10), 0, 50, 50, 0, textureShadowblob,1,1,1);
+	        		glColor4f(1,1,1,1);
+
+		        glColor4f(1,1,1,1);
+		        drawOnScreen(p1.localx,p1.localy,0,p1.sizex,p1.sizey,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
 		        drawSword(p1.localx,p1.localy,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword,1,1,1);
 
 	  		// Desenha Menus por cima
+		        glColor4f(1,1,1,0.5);
+		        drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureGUI[MOLDURA]);
+		        glColor4f(1,1,1,1);
 		        drawOverlay(265,80,0,250,250,true,textureGUI[WOODPLATE]);
-		        drawPlayer(cam.gui->portraitX,cam.gui->portraitY,0,cam.gui->portraitSize,cam.gui->portraitSize,0,textureGUI[PORTRAIT],cam.gui->portraitframe,cam.gui->portraittotal_frames,1);
+		        drawOnScreen(cam.gui->portraitX,cam.gui->portraitY,0,cam.gui->portraitSize,cam.gui->portraitSize,0,textureGUI[PORTRAIT],cam.gui->portraitframe,cam.gui->portraittotal_frames,1);
 		        char str[100];
-		        sprintf(str,"Points: %d",p1.points);
-		        drawText(GLUT_BITMAP_HELVETICA_18,str,220,70);
+		        sprintf(str,"-Sword lv: %.0f",(p1.sword->size-100)/4);
+		        drawText(GLUT_BITMAP_HELVETICA_18,str,210,80);
+		        sprintf(str,"    -Points: %d",p1.points);
+		        drawText(GLUT_BITMAP_HELVETICA_18,str,210,60);
 		        off_shade(cam.gui->restart);
 	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]); // Restart Button
 	        	off_shade(cam.gui->quit);

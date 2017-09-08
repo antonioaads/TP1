@@ -13,9 +13,10 @@
 #define LEFT -1
 
 #define SWORD_INCREMENT 4
-#define SWORD_MAX_SIZE 100
+#define SWORD_MAX_SIZE 500
 
 enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
+enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
 
 using namespace std;
 
@@ -47,6 +48,7 @@ bool contraryDir(bool keyState[]) // Função que talvez auxilie em trazer o car
 
 void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray,int objCount,int map_borderx,int map_bordery,int *gameState)
 {
+
 	// Sair do jogo
 	if(keyState[27])
 		*gameState=QUIT;
@@ -95,9 +97,12 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 					else
 					{
 						p1->points++;
-						p1->sword->size+=2;
-						if(p1->sword->size <= SWORD_MAX_SIZE)
-							p1->sword->size+=SWORD_INCREMENT;
+						if(dynamic_cast<Pixie*>(objArray[x]) && p1->sword->size <= (double)SWORD_MAX_SIZE)
+							p1->sword->size+=(double)SWORD_INCREMENT;
+						if(dynamic_cast<Kitsune*>(objArray[x]))
+						{
+							p1->vel_multiplier=1.5;
+						}
 					}
 				}
 
@@ -155,7 +160,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        else
 		        	p1->vy=p1->vmax;
 
-		        p1->sword->rotation=90;
+		        if(p1->sword->swordMode==SWORD_KEY)
+		        	p1->sword->rotation=90;
 			}
 			else if(keyState[(int)('s')])
 		    {
@@ -164,7 +170,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        else
 		        	p1->vy=-p1->vmax;
 
-		        p1->sword->rotation=270;
+		        if(p1->sword->swordMode==SWORD_KEY)
+		        	p1->sword->rotation=270;
 			}
 			if(keyState[(int)('d')])
 		    {
@@ -175,7 +182,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 		        p1->frame_orientation=1;
 
-		        p1->sword->rotation=0;
+		        if(p1->sword->swordMode==SWORD_KEY)
+		        	p1->sword->rotation=0;
 			}
 		    else if(keyState[(int)('a')])
 		    {
@@ -186,35 +194,40 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 		        p1->frame_orientation=-1;
 
-		        p1->sword->rotation=180;
+		        if(p1->sword->swordMode==SWORD_KEY)
+		       		p1->sword->rotation=180;
 			}
 			// Corrigir velocidade na diagonal (para não ficar mais rápido)
 			if(keyState[(int)('w')] && keyState[(int)('d')])
 			{
 				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
 				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
-				p1->sword->rotation=45;
+				if(p1->sword->swordMode==SWORD_KEY)
+					p1->sword->rotation=45;
 			}
 
 			else if(keyState[(int)('w')] && keyState[(int)('a')])
 			{
 				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
 				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
-				p1->sword->rotation=135;
+				if(p1->sword->swordMode==SWORD_KEY)
+					p1->sword->rotation=135;
 			}
 
 			else if(keyState[(int)('s')] && keyState[(int)('a')])
 			{
 				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
 				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
-				p1->sword->rotation=225;
+				if(p1->sword->swordMode==SWORD_KEY)
+					p1->sword->rotation=225;
 			}
 
 			else if(keyState[(int)('s')] && keyState[(int)('d')])
 			{
 				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
 				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
-				p1->sword->rotation=315;
+				if(p1->sword->swordMode==SWORD_KEY)
+					p1->sword->rotation=315;
 			}
 
 		// FAZER PARAR
@@ -240,19 +253,15 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 			if((top_wall && keyState['w']) || (bottom_wall && keyState['s']))
 				p1->vy=0;
 
+		// Passar a movimentação do player para a camera
+			cam->x+=p1->vx*p1->vel_multiplier;
+			cam->y+=p1->vy*p1->vel_multiplier;
 
-		//if((!left_wall && !right_wall && !top_wall && !bottom_wall) || contraryDir(keyState)) // NAO TA ROLANDO AINDA
-		{
-			// Passar a movimentação do player para a camera
-				cam->x+=p1->vx;
-				cam->y+=p1->vy;
-
-			// Guardar pos no universo do player (e espada)
-				p1->x=cam->x+p1->localx;
-				p1->y=cam->y+p1->localy;
-				p1->sword->x=p1->x;
-				p1->sword->y=p1->y;
-		}
+		// Guardar pos no universo do player (e espada)
+			p1->x=cam->x+p1->localx;
+			p1->y=cam->y+p1->localy;
+			p1->sword->x=p1->x;
+			p1->sword->y=p1->y;
 
 		// Calcular direção do player
 			if(p1->x != p1->lastx)
@@ -276,17 +285,22 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 			objArray[x]->canRand=false;
 		}
 
-		if(objArray[x]->x >= map_borderx || objArray[x]->x <= 0)
+		if(objArray[x]->x >= map_borderx-500 || objArray[x]->x <= 500)
 			objArray[x]->vx*=-1;
-		if(objArray[x]->y >= map_bordery || objArray[x]->y <= 0)
+		if(objArray[x]->y >= map_bordery-400 || objArray[x]->y <= 400)
 			objArray[x]->vy*=-1;
 
-		objArray[x]->x+=objArray[x]->vx;
-		objArray[x]->y+=objArray[x]->vy;		
+		if(!(dynamic_cast<Pixie*>(objArray[x])))
+		{
+			objArray[x]->x+=objArray[x]->vx;
+			objArray[x]->y+=objArray[x]->vy;
 
-		if(objArray[x]->vx>=0)
-			objArray[x]->frame_orientation=1;
-		else
-			objArray[x]->frame_orientation=-1;
+			if(objArray[x]->vx>=0)
+				objArray[x]->frame_orientation=1;
+			else
+				objArray[x]->frame_orientation=-1;
+		}		
+
+		
 	}
 }

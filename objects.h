@@ -15,7 +15,7 @@ class Collectable
 		double x,y;
 		double vx,vy;
 		int delay_randomv,canRand; // Para aleatorizar velocidade
-		int frame_orientation;
+		int frame,total_frames,frame_delay,frame_orientation;
 		double size;
 		bool isAlive;
 		bool canKill;
@@ -38,6 +38,7 @@ class Pixie : public Collectable
 	Pixie(double map_border) : Collectable(map_border)
 	{
 		this->multiply_speed=2;
+		Collectable::total_frames=4;
 		Collectable::canKill=false;
 	}
 };
@@ -49,6 +50,29 @@ class Demon : public Collectable
 	Demon(double map_border) : Collectable(map_border)
 	{
 		Collectable::canKill=true;
+		Collectable::total_frames=4;
+		Collectable::size=100;
+	}
+};
+
+class Miko : public Collectable
+{
+	public:
+	Miko(double map_border) : Collectable(map_border)
+	{
+		Collectable::canKill=false;
+		Collectable::total_frames=4;
+		Collectable::size=150;
+	}
+};
+
+class Kitsune : public Collectable
+{
+	public:
+	Kitsune(double map_border) : Collectable(map_border)
+	{
+		Collectable::canKill=false;
+		Collectable::total_frames=3;
 		Collectable::size=100;
 	}
 };

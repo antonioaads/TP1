@@ -1,6 +1,7 @@
 #include "player.h"
 
-enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE}; 
+enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT};
+enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
 
 // Classes Methods
 Sword::Sword(double width,double height)
@@ -10,6 +11,7 @@ Sword::Sword(double width,double height)
 	this->size=100;
 	this->fixed_width=50;
 	this->rotation=0;
+	this->swordMode=SWORD_KEY;
 }
 
 Player::Player(double width,double height)
@@ -40,6 +42,7 @@ Player::Player(double width,double height)
 	this->vy=0;
 	this->vmax=10;
 	this->fric=1.1;
+	this->vel_multiplier=1;
 	
 	this->isAlive=1;
 }

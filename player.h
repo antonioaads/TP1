@@ -17,6 +17,7 @@ class Sword{
 		double size,fixed_width;
 		double rotation;
 		double xoffset,yoffset;
+		int swordMode;
 
 	Sword(double width,double height);
 };
@@ -28,6 +29,7 @@ class Player{
 				lastx,lasty; // ultima pos (do objeto no universo)(para calcular vetor de direção)
 		double xaxis,yaxis; //direção/sentido
 		double sizex,sizey; //lado do quadrado|tamnho do player
+		double vel_multiplier;
 		double vx,vy,vmax,fric; //velocidade nos eixos x,y, o maximo que o jogador pode atingir e a fricção com o ambiente
 		bool fakePlayer; // deixa o player existir, porem as interações ao seu redor não afetam
 		int isAlive;	//player vivo? vidas?
