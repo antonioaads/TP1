@@ -13,6 +13,9 @@ class Collectable
 {
 	public:
 		double x,y;
+		double vx,vy;
+		int delay_randomv,canRand; // Para aleatorizar velocidade
+		int frame_orientation;
 		double size;
 		bool isAlive;
 		bool canKill;

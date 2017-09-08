@@ -226,13 +226,13 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		// Perceber qual borda do mapa colidiu
 			bool left_wall=false,right_wall=false,top_wall=false,bottom_wall=false;
 
-			if(p1->x + WIDTH/2 >= map_borderx)
+			if(p1->x + WIDTH/2 >= map_borderx-10)
 				right_wall=true;
 			if(p1->x - WIDTH/2 <= 10)
 				left_wall=true;
-			if(p1->y + HEIGHT/2 >= map_bordery)
+			if(p1->y + HEIGHT/2 >= map_bordery-10)
 				top_wall=true;
-			if(p1->y - HEIGHT/2 <= 0)
+			if(p1->y - HEIGHT/2 <= 10)
 				bottom_wall=true;
 
 			if((right_wall && keyState['d']) || (left_wall && keyState['a']))
@@ -259,4 +259,34 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 				p1->xaxis=(p1->x-p1->lastx)/modulo(p1->x-p1->lastx);
 			if(p1->y != p1->lasty)
 				p1->yaxis=(p1->y-p1->lasty)/modulo(p1->y-p1->lasty);
+
+	// Movimentação dos inimigos
+	if(objArray[0]->delay_randomv>=2) // CASO DE TEMPO, APRENDER A UTILIZAR STATIC "ATRIBUTO" PARA TER APENAS UM FRAME_DELAY PARA TODOS DA CLASSE
+	{
+		objArray[0]->canRand=true;
+	}
+	objArray[0]->delay_randomv++;
+	
+	for(int x=0;x<objCount;x++)
+	{
+		if(objArray[0]->canRand)
+		{
+			objArray[x]->vx=rand()*20-10;
+			objArray[x]->vy=rand()*20-10;
+			objArray[x]->canRand=false;
+		}
+
+		if(objArray[x]->x >= map_borderx || objArray[x]->x <= 0)
+			objArray[x]->vx*=-1;
+		if(objArray[x]->y >= map_bordery || objArray[x]->y <= 0)
+			objArray[x]->vy*=-1;
+
+		objArray[x]->x+=objArray[x]->vx;
+		objArray[x]->y+=objArray[x]->vy;		
+
+		if(objArray[x]->vx>=0)
+			objArray[x]->frame_orientation=1;
+		else
+			objArray[x]->frame_orientation=-1;
+	}
 }

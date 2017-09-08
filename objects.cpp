@@ -23,7 +23,7 @@ void initObj(Collectable **objArray,int max_colllectables,double map_border)
 
 Collectable::Collectable(double map_border)
 {
-	this->map_border = map_border/2;
+	this->map_border = map_border;
 
 	this->isAlive=true;
 
@@ -31,6 +31,13 @@ Collectable::Collectable(double map_border)
 
 	this->x=(int)rand()%(int)(this->map_border);
 	this->y=(int)rand()%(int)(this->map_border);
+
+	this->vx=rand()%20-10;
+	this->vy=rand()%20-10;
+	this->delay_randomv=0;
+	this->canRand = true;
+
+	this->frame_orientation=1;
 }
 
 void Collectable::rePosition()

@@ -39,7 +39,7 @@ void drawBg(double x, double y, double z, double sizex,double sizey,Camera *cam,
 	glPopMatrix();
 }
 
-void drawObject(double x, double y, double z, double size,Camera *cam, bool canDraw, GLuint texture)
+void drawObject(double x, double y, double z, double size,Camera *cam, bool canDraw, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	/*
 		A ideia aqui é transladar todo o fundo/objetos de acordo com o input/movimentação do player
@@ -58,6 +58,8 @@ void drawObject(double x, double y, double z, double size,Camera *cam, bool canD
 		
 		glPushMatrix();
 			glTranslatef(x,y,z);
+
+			glScaled(frame_orientation,1,1);
 
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, texture);

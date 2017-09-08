@@ -26,7 +26,7 @@
 #define FPS 60
 #define MAP_BORDERX 8000
 #define MAP_BORDERY 4000
-#define MAX_COLLECTABLES 30
+#define MAX_COLLECTABLES 50
 
 enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
 enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
@@ -232,9 +232,6 @@ void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
 
 
 	// Vetor de estados de teclas
-		if(gameState==MENU && key==27)
-		    exit(0);
-
 		keyState[(int)key]=true;
 }
 
@@ -356,9 +353,9 @@ void draw_callback(void){
 		        for(int x=0;x<MAX_COLLECTABLES;x++)
 		        {
 		        	if(dynamic_cast<Pixie*>(objArray[x])) // Semelhante a "instanceof" (pelo que entendi, tenta reduzir o objeto "genérico" ao tipo Pixie, se der bom, retorna true, se não, false)
-		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[PIXIE]);	
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[PIXIE],1,1,objArray[x]->frame_orientation);	
 		        	if(dynamic_cast<Demon*>(objArray[x]))
-		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[DEMON]);
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[DEMON],1,1,objArray[x]->frame_orientation);
 		        }
 
 	  		// Desenhar Player e Espada
