@@ -107,7 +107,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 			// Colisão com a ESPADA
 
-			for(int i=0; i<=p1->sword->size; i+=10){
+			for(int i=0; i<=p1->sword->size - p1->sword->fixed_width/2; i+=10){
 					dist1 =sqrt(((rotationConvert((i),0,p1->sword->rotation,'x'))+p1->x - (objArray[x]->x)) * 
 								((rotationConvert((i),0,p1->sword->rotation,'x'))+p1->x - (objArray[x]->x)) +
 								((rotationConvert((i),0,p1->sword->rotation,'y'))+p1->y - (objArray[x]->y)) * 
