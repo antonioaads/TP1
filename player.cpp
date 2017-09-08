@@ -43,6 +43,8 @@ Player::Player(double width,double height)
 	this->vmax=10;
 	this->fric=1.1;
 	this->vel_multiplier=1;
+
+	this->canSave=false;
 	
 	this->isAlive=1;
 }
@@ -62,7 +64,6 @@ GUI::GUI(double width, double height)
 	this->textureQuit=QUITGREYED;
 
 	this->pause=false;
-	this->canPause=true;
 	this->pauseSize=600;
 	this->pauseX=width/2;
 	this->pauseY=height/2;

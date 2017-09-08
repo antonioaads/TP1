@@ -43,7 +43,7 @@ void drawBg(double x, double y, double z, double sizex,double sizey,Camera *cam,
 	glPopMatrix();
 }
 
-void drawObject(double x, double y, double z, double size,Camera *cam, bool canDraw, GLuint texture,int frame,int total_frames,int frame_orientation)
+void drawObject(double x, double y, double z, double sizex, double sizey,Camera *cam, bool canDraw, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	/*
 		A ideia aqui é transladar todo o fundo/objetos de acordo com o input/movimentação do player
@@ -53,7 +53,8 @@ void drawObject(double x, double y, double z, double size,Camera *cam, bool canD
 
 	if(!canDraw) return;
 	
-	size/=2;
+	sizex/=2;
+	sizey/=2;
 	
 	glPushMatrix();
 	
@@ -73,10 +74,10 @@ void drawObject(double x, double y, double z, double size,Camera *cam, bool canD
   			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 			
 			glBegin(GL_TRIANGLE_FAN);
-				glTexCoord2d((frame-1)*((double)1/total_frames),0); glVertex3d(-size,-size,0);
-				glTexCoord2d((frame)*((double)1/total_frames),0); glVertex3d(size,-size,0);
-				glTexCoord2d((frame)*((double)1/total_frames),1); glVertex3d(size,size,0);
-				glTexCoord2d((frame-1)*((double)1/total_frames),1); glVertex3d(-size,size,0);
+				glTexCoord2d((frame-1)*((double)1/total_frames),0); glVertex3d(-sizex,-sizey,0);
+				glTexCoord2d((frame)*((double)1/total_frames),0); glVertex3d(sizex,-sizey,0);
+				glTexCoord2d((frame)*((double)1/total_frames),1); glVertex3d(sizex,sizey,0);
+				glTexCoord2d((frame-1)*((double)1/total_frames),1); glVertex3d(-sizex,sizey,0);
 			glEnd();
 
 			glDisable(GL_TEXTURE_2D);

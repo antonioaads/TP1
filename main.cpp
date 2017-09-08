@@ -10,6 +10,9 @@
 #include <GL/freeglut.h>
 #include <string>
 #include <math.h>
+#include <iostream>
+#include <fstream>
+#include <bits/stdc++.h>
 #include "player.h"
 #include "draw.h"
 #include "physics.h"
@@ -33,7 +36,7 @@ enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
 enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
 enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON,MIKO,KITSUNE};
 enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT,MOLDURA};
-enum MENU_SELECTION{START=0,EXIT};
+enum MENU_SELECTION{START=0,HIGHSCORE,EXIT};
 enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
 
 using namespace std;
@@ -43,10 +46,15 @@ using namespace std;
 // Arquivo de SFX
 	Mix_Chunk *slash_sound = NULL;
 
+// Vetor de nomes dos 5 melhores jogadores
+	string top_player_names[5];
+// Vetor de pontuação dos 
+	int top_player_scores[5];
+
 // Inicializar variavel
     bool keyState[300];
     int gameState=MENU;
-    int menuSelection=0;
+    int menuSelection=START;
 
 // Instanciar classes
     Player p1(WIDTH,HEIGHT);
@@ -61,7 +69,7 @@ using namespace std;
     GLuint textureCollectables[10];
     GLuint textureShadowblob;
     GLuint textureGUI[20];
-    GLuint textureMenu[2];
+    GLuint textureMenu[3];
 
 void importTextures()
 {
@@ -90,10 +98,23 @@ void importTextures()
     textureCollectables[KITSUNE] = SOIL_load_OGL_texture("tex/kitsune.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureShadowblob = SOIL_load_OGL_texture("tex/shadow.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[START] = SOIL_load_OGL_texture("tex/menuSTART.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureMenu[HIGHSCORE] = SOIL_load_OGL_texture("tex/menuHIGHSCORE.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[EXIT] = SOIL_load_OGL_texture("tex/menuEXIT.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
 
     if (texturePlayer == 0) 
       printf("Erro do SOIL: '%s'\n", SOIL_last_result());
+}
+
+void exitFromGame()
+{
+	// Salvar no arquivo
+		ofstream arquivo;
+		arquivo.open ("top_score.txt");
+		for(int x=0;x<5;x++)
+			arquivo << top_player_scores[x] << endl;
+		arquivo.close();
+
+	exit(0);
 }
 
 void init(){
@@ -102,6 +123,18 @@ void init(){
 
     // Inicializa objetos
     initObj(objArray,MAX_COLLECTABLES,(double)MAP_BORDERY);
+
+    // Carregar Melhores Pontuações
+    ifstream arquivo;
+    arquivo.open("top_score.txt");
+    for(int x=0; arquivo.peek()!=-1; x++)
+    {
+    	arquivo >> top_player_scores[x];
+    }
+    arquivo.close();
+
+    for(int i=0; i<5;i++)
+    	printf("Point: %i \n",top_player_scores[i]);
 
     // Importa texturas
     importTextures();
@@ -127,13 +160,25 @@ void stateMachine()
     switch(gameState)
     {
         case MENU:
-      	  if(keyState[' '] && menuSelection==0)
+      	  	if(keyState[' '])
+			{
+				switch(menuSelection)
 				{
-					gameState=GAME_0;
-					reset(&p1,&cam,objArray,MAX_COLLECTABLES);
+					case START:
+						gameState=GAME_0;
+						reset(&p1,&cam,objArray,MAX_COLLECTABLES);
+					break;
+
+					case HIGHSCORE:
+					break;
+
+					case EXIT:
+						exitFromGame();
+					break;
+
 				}
-			if(keyState[' '] && menuSelection==1)
-				exit(0);
+				
+			}
         break;
 
         case QUIT:
@@ -141,6 +186,43 @@ void stateMachine()
         break;
 
         case DEAD:
+        	if(p1.canSave)
+        	{
+        		for(int x=0;x<5;x++)
+				{
+					for(int y=0;y<4;y++)
+					{
+						if(top_player_scores[x]<top_player_scores[x+1])
+						{
+							int a=top_player_scores[x];
+							top_player_scores[x]=top_player_scores[x+1];
+							top_player_scores[x+1]=a;
+						}
+					}
+				}
+
+				for(int i=0; i<5;i++)
+    				printf("PointBef: %i \n",top_player_scores[i]);
+
+        		for(int x=0; x<=5;x++)
+        		{
+        			if(p1.points > top_player_scores[x])
+        			{
+        				for(int y=5;y>x;y--)
+        				{
+        					top_player_scores[y]=top_player_scores[y-1];
+        				}
+
+        				top_player_scores[x] = p1.points;
+        				break;
+        			}
+        		}
+
+        		for(int i=0; i<5;i++)
+    				printf("PointAf: %i \n",top_player_scores[i]);
+
+				p1.canSave=false;
+        	}
         	cam.gui->restart=true;
         break;
 
@@ -246,9 +328,9 @@ void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
 		case MENU:
 			// Selection menu
 			if(key=='w')
-				menuSelection++;
-			if(key=='s')
 				menuSelection--;
+			if(key=='s')
+				menuSelection++;
 			if(menuSelection<0)
 				menuSelection=EXIT;
 			if(menuSelection>EXIT)
@@ -289,7 +371,7 @@ void passive_mouse_callback(int x, int y){
 			p1.sword->rotation=360-teta;
 	}
 
-	cout << "mouse(X,Y): ("<< x << ","<< y << ")  d(X,Y)=(" << x-p1.x << ","<< y-p1.y << ")  theta: " << acos((x-p1.x)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2)))*180/M_PI << endl;
+	//cout << "mouse(X,Y): ("<< x << ","<< y << ")  d(X,Y)=(" << x-p1.x << ","<< y-p1.y << ")  theta: " << acos((x-p1.x)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2)))*180/M_PI << endl;
 
 	if(gameState==DEAD)
 	{
@@ -353,7 +435,7 @@ void mouse_callback(int button, int state, int x, int y)
 		// YES
 		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
 			{
-				exit(0);
+				exitFromGame();
 			}
 		// NO
 			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
@@ -402,16 +484,16 @@ void draw_callback(void){
 		        {
 		        	// Sombra
 		        		glColor4f(1,1,1,0.5);
-		        		drawObject(objArray[x]->x, (objArray[x]->y-objArray[x]->size/2), 0, 50, &cam, true, textureShadowblob,1,1,1);
+		        		drawObject(objArray[x]->x, (objArray[x]->y-objArray[x]->sizey/2), 0, 50,50, &cam, true, textureShadowblob,1,1,1);
 		        		glColor4f(1,1,1,1);
 		        	if(dynamic_cast<Pixie*>(objArray[x])) // Semelhante a "instanceof" (pelo que entendi, tenta reduzir o objeto "genérico" ao tipo Pixie, se der bom, retorna true, se não, false)
-		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[PIXIE],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);	
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->sizex, objArray[x]->sizey, &cam, objArray[x]->isAlive, textureCollectables[PIXIE],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);	
 		        	if(dynamic_cast<Demon*>(objArray[x]))
-		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[DEMON],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->sizex, objArray[x]->sizey, &cam, objArray[x]->isAlive, textureCollectables[DEMON],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
 		            if(dynamic_cast<Miko*>(objArray[x]))
-		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[MIKO],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->sizex, objArray[x]->sizey, &cam, objArray[x]->isAlive, textureCollectables[MIKO],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
 		            if(dynamic_cast<Kitsune*>(objArray[x]))
-		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->size, &cam, objArray[x]->isAlive, textureCollectables[KITSUNE],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
+		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->sizex, objArray[x]->sizey, &cam, objArray[x]->isAlive, textureCollectables[KITSUNE],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
 		        }
 
 	  		// Desenhar Player e Espada
@@ -502,6 +584,7 @@ int main(int argc, char** argv){
 
 	// quit SDL_mixer
 		Mix_CloseAudio();
+
     
     return 0;
 }

@@ -83,10 +83,10 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		for(int x=0;x<objCount;x++)
 		{
 			// Colisão com o JOGADOR
-			if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->size/2 < p1->x+p1->sizex/2 
-									&& objArray[x]->x + objArray[x]->size/2 > p1->x-p1->sizex/2 
-									&& objArray[x]->y - objArray[x]->size/2 < p1->y+p1->sizey/2 
-									&& objArray[x]->y + objArray[x]->size/2 > p1->y-p1->sizey/2)
+			if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->sizex/2 < p1->x+p1->sizex/2 
+									&& objArray[x]->x + objArray[x]->sizex/2 > p1->x-p1->sizex/2 
+									&& objArray[x]->y - objArray[x]->sizey/2 < p1->y+p1->sizey/2 
+									&& objArray[x]->y + objArray[x]->sizey/2 > p1->y-p1->sizey/2)
 			{
 				colided=true;
 				objArray[x]->isAlive=false;
@@ -95,7 +95,10 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 				if(!p1->fakePlayer)
 				{
 					if(objArray[x]->canKill)
+					{
 						*gameState=DEAD;
+						p1->canSave=true;
+					}
 					else
 					{
 						p1->points++;
@@ -124,7 +127,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 
 
-					if(dist1 <= p1->sword->fixed_width/2 + objArray[x]->size/2){
+					if(dist1 <= p1->sword->fixed_width/2 + (objArray[x]->sizex+objArray[x]->sizey)/4){
 						colided=true;
 						objArray[x]->isAlive=false;
 						objArray[x]->rePosition();

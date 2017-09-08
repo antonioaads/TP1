@@ -32,6 +32,7 @@ class Player{
 		double vel_multiplier;
 		double vx,vy,vmax,fric; //velocidade nos eixos x,y, o maximo que o jogador pode atingir e a fricção com o ambiente
 		bool fakePlayer; // deixa o player existir, porem as interações ao seu redor não afetam
+		bool canSave;
 		int isAlive;	//player vivo? vidas?
 		int points;
 		int frame,total_frames,frame_delay;
@@ -52,7 +53,7 @@ class GUI
 		double quitX, quitY, quitSize;
 		int textureQuit;
 
-		bool pause,canPause;
+		bool pause;
 		double pauseX, pauseY, pauseSize;
 		int texturePause;
 

@@ -16,7 +16,7 @@ class Collectable
 		double vx,vy;
 		int delay_randomv,canRand; // Para aleatorizar velocidade
 		int frame,total_frames,frame_delay,frame_orientation;
-		double size;
+		double sizex,sizey;
 		bool isAlive;
 		bool canKill;
 
@@ -40,6 +40,8 @@ class Pixie : public Collectable
 		this->multiply_speed=2;
 		Collectable::total_frames=4;
 		Collectable::canKill=false;
+		Collectable::sizex=100;
+		Collectable::sizey=100;
 	}
 };
 
@@ -51,7 +53,8 @@ class Demon : public Collectable
 	{
 		Collectable::canKill=true;
 		Collectable::total_frames=4;
-		Collectable::size=100;
+		Collectable::sizex=75;
+		Collectable::sizey=100;
 	}
 };
 
@@ -62,7 +65,8 @@ class Miko : public Collectable
 	{
 		Collectable::canKill=false;
 		Collectable::total_frames=4;
-		Collectable::size=150;
+		Collectable::sizex=75;
+		Collectable::sizey=150;
 	}
 };
 
@@ -73,7 +77,8 @@ class Kitsune : public Collectable
 	{
 		Collectable::canKill=false;
 		Collectable::total_frames=3;
-		Collectable::size=100;
+		Collectable::sizex=100;
+		Collectable::sizey=100;
 	}
 };
 

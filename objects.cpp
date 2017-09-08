@@ -33,8 +33,6 @@ Collectable::Collectable(double map_border)
 
 	this->isAlive=true;
 
-	this->size=60;
-
 	this->x=(int)rand()%(int)(this->map_border-2000)+500;
 	this->y=(int)rand()%(int)(this->map_border-2000)+500;
 
