@@ -379,6 +379,8 @@ void draw_callback(void){
 	        	off_shade(cam.gui->pause);
 	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->pauseSize,cam.gui->pauseSize,cam.gui->pause,textureGUI[cam.gui->texturePause]);
 	        	
+	        // Effect
+	        	// drawObject(rotationConvert(p1.sword->size,0,p1.sword->rotation,'x')+p1.x, rotationConvert(p1.sword->size,0,p1.sword->rotation,'y')+p1.y, 0, 100,&cam,true, 0);
 		break;	
     }
     

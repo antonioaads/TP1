@@ -108,6 +108,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 			// Colisão com a ESPADA
 
 			for(int i=0; i<=p1->sword->size - p1->sword->fixed_width/2; i+=10){
+				if(objArray[x]->canKill)
+				{
 					dist1 =sqrt(((rotationConvert((i),0,p1->sword->rotation,'x'))+p1->x - (objArray[x]->x)) * 
 								((rotationConvert((i),0,p1->sword->rotation,'x'))+p1->x - (objArray[x]->x)) +
 								((rotationConvert((i),0,p1->sword->rotation,'y'))+p1->y - (objArray[x]->y)) * 
@@ -122,15 +124,9 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 						if(!p1->fakePlayer)
 						{
-							if(objArray[x]->canKill)
-								*gameState=DEAD;
-							else
-							{
-								p1->points++;
-								p1->sword->size+=2;
-								if(p1->sword->size <= SWORD_MAX_SIZE)
-									p1->sword->size+=SWORD_INCREMENT;
-							}
+							p1->points++;
+							if(p1->sword->size >= 15)
+								p1->sword->size-=2;
 						}
 
 						objArray[x]->isAlive=true;
@@ -138,27 +134,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 						//break;
 					}
-
 				}
-
-			/*if(objArray[x]->canKill) // se obj canKill então é um inimigo, logo, calcular colisão com a espada
-			{
-				for(int i=25; i < p1->sword->size; i+=25)
-				{
-					double dist_btw_pts=sqrt( pow( rotationConvert(i,0,p1->sword->rotation*M_PI/180,'x') - objArray[x]->x ,2) + 
-												pow( rotationConvert(i,0,p1->sword->rotation*M_PI/180,'y') - objArray[x]->y ,2) );
-
-					if(dist_btw_pts <= 2*(p1->sword->fixed_width/2 + objArray[x]->size/2))
-					{
-						cout << "KILLINGMACHINE" << endl;
-						objArray[x]->isAlive=false;
-						objArray[x]->rePosition();
-
-						if(!p1->fakePlayer)
-							p1->points++;
-					}
-				}
-			}*/
+			}
 
 		}
 
