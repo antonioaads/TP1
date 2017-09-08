@@ -235,6 +235,12 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 			if(p1->y - HEIGHT/2 <= HEIGHT/2 - map_border/2)
 				bottom_wall=true;
 
+			if((right_wall && keyState['d']) || (left_wall && keyState['a']))
+				p1->vx=0;
+			if((top_wall && keyState['w']) || (bottom_wall && keyState['s']))
+				p1->vy=0;
+
+
 		//if((!left_wall && !right_wall && !top_wall && !bottom_wall) || contraryDir(keyState)) // NAO TA ROLANDO AINDA
 		{
 			// Passar a movimentação do player para a camera
