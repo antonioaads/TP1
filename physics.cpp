@@ -45,7 +45,7 @@ bool contraryDir(bool keyState[]) // Função que talvez auxilie em trazer o car
 	if(bottom_wall) return (!keyState['s'] && keyState['w']);
 }
 
-void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray,int objCount,int map_border,int *gameState)
+void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray,int objCount,int map_borderx,int map_bordery,int *gameState)
 {
 	// Sair do jogo
 	if(keyState[27])
@@ -157,7 +157,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 		        p1->sword->rotation=90;
 			}
-			if(keyState[(int)('s')])
+			else if(keyState[(int)('s')])
 		    {
 				if(p1->vy>-p1->vmax)
 		        	p1->vy-=2;
@@ -177,7 +177,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 		        p1->sword->rotation=0;
 			}
-		    if(keyState[(int)('a')])
+		    else if(keyState[(int)('a')])
 		    {
 				if(p1->vx>-p1->vmax)
 		        	p1->vx-=2;
@@ -226,13 +226,13 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		// Perceber qual borda do mapa colidiu
 			bool left_wall=false,right_wall=false,top_wall=false,bottom_wall=false;
 
-			if(p1->x + WIDTH/2 >= WIDTH/2 + map_border/2)
+			if(p1->x + WIDTH/2 >= map_borderx)
 				right_wall=true;
-			if(p1->x - WIDTH/2 <= WIDTH/2 - map_border/2)
+			if(p1->x - WIDTH/2 <= 10)
 				left_wall=true;
-			if(p1->y + HEIGHT/2 >= HEIGHT/2 + map_border/2)
+			if(p1->y + HEIGHT/2 >= map_bordery)
 				top_wall=true;
-			if(p1->y - HEIGHT/2 <= HEIGHT/2 - map_border/2)
+			if(p1->y - HEIGHT/2 <= 0)
 				bottom_wall=true;
 
 			if((right_wall && keyState['d']) || (left_wall && keyState['a']))

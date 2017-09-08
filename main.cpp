@@ -141,7 +141,7 @@ void stateMachine()
         
         case GAME_0:
             // Physics
-                calculatePhysics(&p1,&cam,keyState,objArray,MAX_COLLECTABLES,MAP_BORDERX,&gameState);
+                calculatePhysics(&p1,&cam,keyState,objArray,MAX_COLLECTABLES,MAP_BORDERX,MAP_BORDERY,&gameState);
             // Animation Handling
                 // Player
                 if(keyState['s'] || keyState['d'] || keyState['a'])

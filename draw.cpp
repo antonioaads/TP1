@@ -15,9 +15,6 @@ void drawBg(double x, double y, double z, double sizex,double sizey,Camera *cam,
 
 	if(!canDraw) return;
 	
-	sizex/=2;
-	sizey/=2;
-	
 	glPushMatrix();
 	
 		glLoadIdentity();
@@ -31,10 +28,10 @@ void drawBg(double x, double y, double z, double sizex,double sizey,Camera *cam,
 			glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 		
 		glBegin(GL_TRIANGLE_FAN);
-			glTexCoord2d(0,0); glVertex3d(-sizex,-sizey,0);
-			glTexCoord2d(1,0); glVertex3d(sizex,-sizey,0);
+			glTexCoord2d(0,0); glVertex3d(0,0,0);
+			glTexCoord2d(1,0); glVertex3d(sizex,0,0);
 			glTexCoord2d(1,1); glVertex3d(sizex,sizey,0);
-			glTexCoord2d(0,1); glVertex3d(-sizex,sizey,0);
+			glTexCoord2d(0,1); glVertex3d(0,sizey,0);
 		glEnd();
 
 		glDisable(GL_TEXTURE_2D);
