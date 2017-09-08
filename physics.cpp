@@ -212,11 +212,32 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		        p1->sword->rotation=180;
 			}
 			// Corrigir velocidade na diagonal (para não ficar mais rápido)
-			if((keyState[(int)('w')] && keyState[(int)('d')]) || (keyState[(int)('w')] && keyState[(int)('a')]) 
-					|| (keyState[(int)('s')] && keyState[(int)('a')]) || (keyState[(int)('s')] && keyState[(int)('d')]))
+			if(keyState[(int)('w')] && keyState[(int)('d')])
 			{
 				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
 				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
+				p1->sword->rotation=45;
+			}
+
+			else if(keyState[(int)('w')] && keyState[(int)('a')])
+			{
+				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
+				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
+				p1->sword->rotation=135;
+			}
+
+			else if(keyState[(int)('s')] && keyState[(int)('a')])
+			{
+				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
+				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
+				p1->sword->rotation=225;
+			}
+
+			else if(keyState[(int)('s')] && keyState[(int)('d')])
+			{
+				p1->vx/=1.25; // 1/sqrt(2) (valor para fazer com que a hipotenusa seja 1 || módulo do vetor na diagonal seja 1)
+				p1->vy/=1.25; // (menos um pouco na verdade, pra dar mais a sensação de que as velocidades estão próximas)
+				p1->sword->rotation=315;
 			}
 
 		// FAZER PARAR
