@@ -3,6 +3,8 @@
 #include "draw.h"
 #include <iostream>
 #include <math.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -46,7 +48,7 @@ bool contraryDir(bool keyState[]) // Função que talvez auxilie em trazer o car
 	if(bottom_wall) return (!keyState['s'] && keyState['w']);
 }
 
-void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray,int objCount,int map_borderx,int map_bordery,int *gameState)
+void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int objCount, int map_borderx, int map_bordery, int *gameState, Mix_Chunk *slash_sound)
 {
 
 	// Sair do jogo
@@ -130,6 +132,9 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 						if(!p1->fakePlayer)
 						{
 							p1->points++;
+
+							Mix_PlayChannel(1, slash_sound, 0);
+							
 							if(p1->sword->size >= 15)
 								p1->sword->size-=2;
 						}

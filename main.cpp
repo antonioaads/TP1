@@ -20,6 +20,7 @@
 	#include <SDL2/SDL_mixer.h>
 
 	#define MUS_PATH "music/song3.wav" // OGG(e outros) = música de fundo
+	#define SLASH_PATH "music/slash32.wav"
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -39,6 +40,8 @@ using namespace std;
 
 // Arquivo de musica (ponteiro)
 	Mix_Music *music = NULL;
+// Arquivo de SFX
+	Mix_Chunk *slash_sound = NULL;
 
 // Inicializar variavel
     bool keyState[300];
@@ -147,7 +150,7 @@ void stateMachine()
         
         case GAME_0:
             // Physics
-                calculatePhysics(&p1,&cam,keyState,objArray,MAX_COLLECTABLES,MAP_BORDERX,MAP_BORDERY,&gameState);
+                calculatePhysics(&p1, &cam, keyState, objArray, MAX_COLLECTABLES, MAP_BORDERX, MAP_BORDERY, &gameState, slash_sound);
             // Animation Handling
                 // Player
                 if(keyState['s'] || keyState['d'] || keyState['a'])
@@ -457,12 +460,17 @@ int main(int argc, char** argv){
 			if( Mix_OpenAudio( 22050, MIX_DEFAULT_FORMAT, 2, 4096 ) == -1 ) 
 				return -1;
 
+		// Load our sound effect
+			slash_sound = Mix_LoadWAV(SLASH_PATH);
+			if (slash_sound == NULL)
+				return -1;
+
 		// Load our music
 			music = Mix_LoadMUS(MUS_PATH);
 			if (music == NULL)
 				return -1;
 		// Play Music
-			if ( Mix_PlayMusic( music, -1) == -1 )
+			if ( Mix_PlayMusic( music, -1) == -1 ) // (-1) -> loop  (1) -> one_time
 				return -1;
 
     
