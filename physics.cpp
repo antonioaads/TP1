@@ -8,6 +8,7 @@
 
 #define WIDTH 1024
 #define HEIGHT 768
+#define FPS 30
 
 #define UP 1
 #define DOWN -1
@@ -64,18 +65,6 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 	if(keyState['m'])
 		p1->sword->rotation--;
 
-	// Pausar o jogo
-	/*if(keyState['p'] && canPause)
-    {
-    	canPause=false;
-    	glutTimerFunc(10000,enablePause,0);
-
-    	if(*gameState==PAUSE)
-    		*gameState=GAME_0;
-    	else
-    		*gameState=PAUSE;
-    }*/
-
 	// Calcular colisão
 		bool colided = false;
 		double dist1;
@@ -89,12 +78,12 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 									&& objArray[x]->y + objArray[x]->sizey/2 > p1->y-p1->sizey/2)
 			{
 				colided=true;
-				objArray[x]->isAlive=false;
-				objArray[x]->rePosition();
+				objArray[x]->isAlive=false; // por precaução, desativar temporariamente a colisão com o jogador
+				objArray[x]->rePosition();	// reposicionar coletável
 
-				if(!p1->fakePlayer)
+				if(!p1->fakePlayer)	// artifício para impedir que coletáveis sejam gerados embaixo do jogador no início da partida
 				{
-					if(objArray[x]->canKill)
+					if(objArray[x]->canKill && !p1->bless)	// caso o objeto possa me matar, que ele me mate (e ativar salvamento de pontuação)
 					{
 						*gameState=DEAD;
 						p1->canSave=true;
@@ -102,17 +91,22 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 					else
 					{
 						p1->points++;
+
+						// Caso o objeto seja to tipo pixie, cresce a espada
 						if(dynamic_cast<Pixie*>(objArray[x]) && p1->sword->size <= (double)SWORD_MAX_SIZE)
 							p1->sword->size+=(double)SWORD_INCREMENT;
+
+						// Caso o objeto seja do tipo Kitsune, aumenta velocidade
 						if(dynamic_cast<Kitsune*>(objArray[x]))
-						{
-							p1->vel_multiplier=1.5;
-						}
+							p1->vmult=1.5;
+
+						// Caso o objeto seja do tipo Miko, ativa aura de invencibilidade
+						if(dynamic_cast<Miko*>(objArray[x]))
+							p1->bless=true;
 					}
 				}
 
 				objArray[x]->isAlive=true;
-				cout << "p1_points = \n"<< p1->points << endl;
 			}
 
 			// Colisão com a ESPADA
@@ -151,9 +145,6 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 			}
 
 		}
-
-		/*cout<<"p1->xaxis = "<<p1->xaxis<<endl;
-		cout<<"p1->yaxis = "<<p1->yaxis<<endl;*/
 
 	// Recurso utilizado para que o player não spawne em cima de um monstro e já morra de primeira vez, A.K.A.: migué =D
 	p1->fakePlayer=false;
@@ -256,26 +247,21 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 			if(p1->y - HEIGHT/2 <= 10)
 				bottom_wall=true;
 
+		// Interromper movimento nas paredes do mundo
 			if((right_wall && keyState['d']) || (left_wall && keyState['a']))
 				p1->vx=0;
 			if((top_wall && keyState['w']) || (bottom_wall && keyState['s']))
 				p1->vy=0;
 
 		// Passar a movimentação do player para a camera
-			cam->x+=p1->vx*p1->vel_multiplier;
-			cam->y+=p1->vy*p1->vel_multiplier;
+			cam->x+=p1->vx*p1->vmult;
+			cam->y+=p1->vy*p1->vmult;
 
 		// Guardar pos no universo do player (e espada)
 			p1->x=cam->x+p1->localx;
 			p1->y=cam->y+p1->localy;
 			p1->sword->x=p1->x;
 			p1->sword->y=p1->y;
-
-		// Calcular direção do player
-			if(p1->x != p1->lastx)
-				p1->xaxis=(p1->x-p1->lastx)/modulo(p1->x-p1->lastx);
-			if(p1->y != p1->lasty)
-				p1->yaxis=(p1->y-p1->lasty)/modulo(p1->y-p1->lasty);
 
 	// Movimentação dos inimigos
 	if(objArray[0]->delay_randomv>=2) // CASO DE TEMPO, APRENDER A UTILIZAR STATIC "ATRIBUTO" PARA TER APENAS UM FRAME_DELAY PARA TODOS DA CLASSE
@@ -311,4 +297,27 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 		
 	}
+
+	// Buff/Debuff Timers
+
+		// Speed Bless
+			if(p1->vmult != 1)
+			{
+				p1->vmult_reset_count++;
+				if(p1->vmult_reset_count>=FPS*5)
+				{
+					p1->vmult_reset_count=0;
+					p1->vmult=1;
+				}
+			}
+		// Aura Bless
+			if(p1->bless)
+			{
+				p1->bless_reset_count++;
+				if(p1->bless_reset_count>=FPS*7)
+				{
+					p1->bless_reset_count=0;
+					p1->bless=false;
+				}
+			}
 }

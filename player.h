@@ -27,12 +27,20 @@ class Player{
 		double x,y,	// pos no universo (necessario para colisoes (isso+local))
 				localx,localy,	// pos no mundo (tela)
 				lastx,lasty; // ultima pos (do objeto no universo)(para calcular vetor de direção)
-		double xaxis,yaxis; //direção/sentido
+		
 		double sizex,sizey; //lado do quadrado|tamnho do player
-		double vel_multiplier;
+
+		double vmult;	// multiplicador da velocidade do player
+		int vmult_reset_count;	// contador para resetar o multiplicador
+
+		bool bless;
+		int bless_reset_count;
+		int blessframe,blesstotal_frames,blessframe_delay;
+
 		double vx,vy,vmax,fric; //velocidade nos eixos x,y, o maximo que o jogador pode atingir e a fricção com o ambiente
+		
 		bool fakePlayer; // deixa o player existir, porem as interações ao seu redor não afetam
-		bool canSave;
+		bool canSave;	// controle para permitir salvar pontuação do player
 		int isAlive;	//player vivo? vidas?
 		int points;
 		int frame,total_frames,frame_delay;

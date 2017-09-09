@@ -5,7 +5,6 @@
 // your stuff goes here
 
 // function prototypes, etc.
-void animationControl(Player *);
 void drawBg(double x, double y, double z, double sizex,double sizey,Camera *cam, bool canDraw, GLuint texture);
 void drawObject(double x, double y, double z, double sizex, double sizey,Camera *cam, bool canDraw, GLuint texture,int frame,int total_frames,int frame_orientation);
 void drawWithinCamera(double x, double y, double z, double sizex,double sizey, double degree, GLuint texture,int frame,int total_frames,int frame_orientation);

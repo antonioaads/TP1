@@ -19,6 +19,7 @@ class Collectable
 		double sizex,sizey;
 		bool isAlive;
 		bool canKill;
+		int bufftime;
 
 		double map_border;
 

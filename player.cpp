@@ -42,7 +42,12 @@ Player::Player(double width,double height)
 	this->vy=0;
 	this->vmax=10;
 	this->fric=1.1;
-	this->vel_multiplier=1;
+	this->vmult=1;
+
+	this->bless=false;
+	this->blessframe=1;
+	this->blesstotal_frames=4;
+	this->blessframe_delay=0;
 
 	this->canSave=false;
 	

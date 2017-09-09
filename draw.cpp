@@ -9,6 +9,9 @@ using namespace std;
 void drawBg(double x, double y, double z, double sizex,double sizey,Camera *cam, bool canDraw, GLuint texture)
 {
 	/*
+		SEM SUPORTE A ANIMAÇÃO
+		REFERENCIA: CANTO INFERIOR ESQUERDO
+		ORIGEM: UNIVERSO
 		A ideia aqui é transladar todo o fundo/objetos de acordo com o input/movimentação do player
 		Transladamos uma primeira vez para efeito de "rolagem de camera"
 	*/
@@ -46,9 +49,13 @@ void drawBg(double x, double y, double z, double sizex,double sizey,Camera *cam,
 void drawObject(double x, double y, double z, double sizex, double sizey,Camera *cam, bool canDraw, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	/*
+		SUPORTE A ANIMAÇÃO
+		REFERENCIA: CENTRO
+		ORIGEM: UNIVERSO
+		POSSUI DESENHO DINÂMICO / CANDRAW
 		A ideia aqui é transladar todo o fundo/objetos de acordo com o input/movimentação do player
 		Transladamos uma primeira vez para efeito de "rolagem de camera" e
-		transladamos uma segunda vez para utilizar a ideia de "desenhar com base no próprio sistema de coordenadas do objeto"
+		transladamos uma segunda vez para executar a ideia de "desenhar com base no próprio sistema de coordenadas do objeto"
 	*/
 
 	if(!canDraw) return;
@@ -90,6 +97,9 @@ void drawObject(double x, double y, double z, double sizex, double sizey,Camera 
 void drawWithinCamera(double x, double y, double z, double sizex,double sizey, double degree, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	/*
+		SUPORTE A ANIMAÇÃO
+		REFERENCIA: CENTRO
+		ORIGEM: CAMERA
 		Nesta função, a origem é transladada para a posição local do player e utilizada como referencia para desenhar o mesmo a partir do centro
 		(referencia no meio do personagem)
 	*/
@@ -135,6 +145,9 @@ double rotationConvert(double xr,double yr,double degree, char coord)
 void drawSword(double x, double y, double z, double size, double fixed_width,double degree, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	/*
+		SUPORTE A ANIMAÇÃO
+		REFERENCIA: METADE DO LADO ESQUERDO
+		ORIGEM: CAMERA
 		Nesta função, a origem é transladada para a posição local da espada e utilizada como referencia para desenhar a mesma a partir do canto inferior esquerdo
 		(lembrando, esse canto é virtual, ou seja, "inferior esquerdo" é uma referencia anterior da rotação do objeto (quando o mesmo está na posição horizontal para a direita))
 	*/
@@ -171,6 +184,12 @@ void drawSword(double x, double y, double z, double size, double fixed_width,dou
 
 void drawOverlay(double x, double y, double z, double sizex,double sizey, bool canDraw, GLuint texture)
 {
+	/*
+		SEM SUPORTE A ANIMAÇÃO
+		REFERENCIA: CENTRO
+		ORIGEM: UNIVERSO
+		Versão mais simples das funções acima, apenas com o básico
+	*/
 	if(canDraw)
 	{
 		sizex/=2;

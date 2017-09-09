@@ -55,6 +55,7 @@ using namespace std;
     bool keyState[300];
     int gameState=MENU;
     int menuSelection=START;
+    double splash_accel=0.00005,splash_vel=0,splash_alpha=1;
 
 // Instanciar classes
     Player p1(WIDTH,HEIGHT);
@@ -67,9 +68,12 @@ using namespace std;
     GLuint textureSword;
     GLuint textureBackground;
     GLuint textureCollectables[10];
+    GLuint textureAura;
     GLuint textureShadowblob;
     GLuint textureGUI[20];
     GLuint textureMenu[3];
+    GLuint textureSplash;
+    GLuint textureSideFace;
 
 void importTextures()
 {
@@ -96,10 +100,13 @@ void importTextures()
     textureCollectables[DEMON] = SOIL_load_OGL_texture("tex/demonWALK.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[MIKO] = SOIL_load_OGL_texture("tex/mikospiritWALK.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCollectables[KITSUNE] = SOIL_load_OGL_texture("tex/kitsune.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureAura = SOIL_load_OGL_texture("tex/fire.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureShadowblob = SOIL_load_OGL_texture("tex/shadow.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[START] = SOIL_load_OGL_texture("tex/menuSTART.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[HIGHSCORE] = SOIL_load_OGL_texture("tex/menuHIGHSCORE.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[EXIT] = SOIL_load_OGL_texture("tex/menuEXIT.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureSplash = SOIL_load_OGL_texture("tex/splash.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureSideFace = SOIL_load_OGL_texture("tex/sideface.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
 
     if (texturePlayer == 0) 
       printf("Erro do SOIL: '%s'\n", SOIL_last_result());
@@ -132,9 +139,6 @@ void init(){
     	arquivo >> top_player_scores[x];
     }
     arquivo.close();
-
-    for(int i=0; i<5;i++)
-    	printf("Point: %i \n",top_player_scores[i]);
 
     // Importa texturas
     importTextures();
@@ -180,8 +184,9 @@ void stateMachine()
 					break;
 
 				}
-				
 			}
+			splash_vel+=splash_accel;
+			splash_alpha-=splash_vel;
         break;
 
         case QUIT:
@@ -204,9 +209,6 @@ void stateMachine()
 					}
 				}
 
-				for(int i=0; i<5;i++)
-    				printf("PointBef: %i \n",top_player_scores[i]);
-
         		for(int x=0; x<=5;x++)
         		{
         			if(p1.points > top_player_scores[x])
@@ -220,9 +222,6 @@ void stateMachine()
         				break;
         			}
         		}
-
-        		for(int i=0; i<5;i++)
-    				printf("PointAf: %i \n",top_player_scores[i]);
 
 				p1.canSave=false;
         	}
@@ -238,32 +237,45 @@ void stateMachine()
                 calculatePhysics(&p1, &cam, keyState, objArray, MAX_COLLECTABLES, MAP_BORDERX, MAP_BORDERY, &gameState, slash_sound);
             // Animation Handling
                 // Player
-                if(keyState['s'] || keyState['d'] || keyState['a'])
-                {
-                	texturePlayer=texturePlayerAnim[WALK];
-                	p1.total_frames=3;
-                }
-                if(keyState['w'])
-                {
-                	texturePlayer=texturePlayerAnim[BACKWALK];
-                	p1.total_frames=3;
-                }
-                if(!(keyState['s'] || keyState['d'] || keyState['a'] || keyState['w']))
-                {
-                	texturePlayer=texturePlayerAnim[IDLE];
-                	p1.total_frames=2;
-                }
+                	// Selecionar qual tipo de movimentação do player
+	                if(keyState['s'] || keyState['d'] || keyState['a'])
+	                {
+	                	texturePlayer=texturePlayerAnim[WALK];
+	                	p1.total_frames=3;
+	                }
+	                if(keyState['w'])
+	                {
+	                	texturePlayer=texturePlayerAnim[BACKWALK];
+	                	p1.total_frames=3;
+	                }
+	                if(!(keyState['s'] || keyState['d'] || keyState['a'] || keyState['w']))
+	                {
+	                	texturePlayer=texturePlayerAnim[IDLE];
+	                	p1.total_frames=2;
+	                }
+	                // Implementar troca de frames com delay (para não acontecer troca de frame a cada 1/FPS segundos)
+	                if(p1.frame_delay>=10)
+	                {
+	                	if(p1.frame<p1.total_frames-1)
+	                		p1.frame++;
+	                	else
+	                		p1.frame=1;
 
-                if(p1.frame_delay>=10)
+	                	p1.frame_delay=0;
+	                }
+	        		p1.frame_delay++;
+
+        		// Aura
+        		if(p1.blessframe_delay>=10)
                 {
-                	if(p1.frame<p1.total_frames-1)
-                		p1.frame++;
+                	if(p1.blessframe<p1.blesstotal_frames-1)
+                		p1.blessframe++;
                 	else
-                		p1.frame=1;
+                		p1.blessframe=1;
 
-                	p1.frame_delay=0;
+                	p1.blessframe_delay=0;
                 }
-        		p1.frame_delay++;
+        		p1.blessframe_delay++;
 
         		// Portrait
         		if(cam.gui->portraitframe_delay >= 10)
@@ -379,8 +391,6 @@ void passive_mouse_callback(int x, int y){
 			p1.sword->rotation=360-teta;
 	}
 
-	//cout << "mouse(X,Y): ("<< x << ","<< y << ")  d(X,Y)=(" << x-p1.x << ","<< y-p1.y << ")  theta: " << acos((x-p1.x)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2)))*180/M_PI << endl;
-
 	if(gameState==DEAD)
 	{
 		if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX-cam.gui->restartSize/2
@@ -453,7 +463,7 @@ void mouse_callback(int button, int state, int x, int y)
 			}
 	}
 }
-void off_shade(bool canDraw) // Overlay de "escurecer a tela no pause"
+void off_shade(bool canDraw) // Efeito de "escurecer a tela"
 {
 	glColor4f(0,0,0,0.5);
 	drawOverlay(WIDTH/2,HEIGHT/2,0,MAP_BORDERX*2,MAP_BORDERX*2,canDraw,0);
@@ -476,12 +486,13 @@ void draw_callback(void){
     	case HIGHSCORE_MENU:
 		{
 			// Cor de fundo
-			glColor4d(0.4,0.2,0.3,1);
-			drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,0);
-			// Desenhar madeira
 			glColor4d(1,1,1,1);
+			drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureSideFace);
+			// Desenhar madeira
+			glColor4d(1,1,1,0.6);
 			drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT*4,true,textureGUI[WOODPLATE]);
 			// Escrever pontuação
+			glColor4d(1,1,1,1);
 			char str[100];
 	        sprintf(str,"Top Score: ");
 	        drawText(GLUT_BITMAP_HELVETICA_18,str,WIDTH/2-100,3.8*HEIGHT/5);
@@ -494,8 +505,12 @@ void draw_callback(void){
 	    break;
 
     	case MENU:
-    	// Desenha menu inicial
+    		// Desenha menu inicial
+    		glColor4f(1,1,1,1);
     		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH*1.5,HEIGHT,true,textureMenu[menuSelection]);
+    		// Desenhar splash screen
+    		glColor4f(1,1,1,splash_alpha);
+    		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureSplash);
     	break;
 
     	case QUIT:	// Como quero que fique desenhado por baixo o último estado do jogo
@@ -507,7 +522,7 @@ void draw_callback(void){
 		        glColor3f(1,1,1);
 		        drawBg(0,0,0, MAP_BORDERX,MAP_BORDERY, &cam, true, textureBackground);
 
-		    // Desenha Itens
+		    // Desenha Itens / Inimigos
 		        glColor3f(1,1,1);
 		        for(int x=0;x<MAX_COLLECTABLES;x++)
 		        {
@@ -525,41 +540,47 @@ void draw_callback(void){
 		            	drawObject(objArray[x]->x, objArray[x]->y,0, objArray[x]->sizex, objArray[x]->sizey, &cam, objArray[x]->isAlive, textureCollectables[KITSUNE],objArray[x]->frame,objArray[x]->total_frames,objArray[x]->frame_orientation);
 		        }
 
-	  		// Desenhar Player e Espada
+	  		// Desenhar Player
 		        // Sombra
 	        		glColor4f(1,1,1,0.5);
 	        		drawWithinCamera(p1.localx, (p1.localy-p1.sizex/2-10), 0, 50, 50, 0, textureShadowblob,1,1,1);
 	        		glColor4f(1,1,1,1);
+	        	// Player e Espada
+			        glColor4f(1,1,1,1);
+			        drawWithinCamera(p1.localx,p1.localy,0,p1.sizex,p1.sizey,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
+			        drawSword(p1.localx,p1.localy,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword,1,1,1);
+		        // Aura (caso ativa)
+			        glColor4f(1,1,1,0.7);
+			        drawObject(p1.x,p1.y+30,0,p1.sizex+100,p1.sizey+100,&cam,p1.bless,textureAura,p1.blessframe,p1.blesstotal_frames,p1.frame_orientation);
 
-		        glColor4f(1,1,1,1);
-		        drawWithinCamera(p1.localx,p1.localy,0,p1.sizex,p1.sizey,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
-		        drawSword(p1.localx,p1.localy,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword,1,1,1);
+			// FX
+
+			// Possível efeito maneiro
+	        	// drawObject(rotationConvert(p1.sword->size,0,p1.sword->rotation,'x')+p1.x, rotationConvert(p1.sword->size,0,p1.sword->rotation,'y')+p1.y, 0, 100,&cam,true, 0);
+
 
 	  		// Desenha Menus por cima
 		        // Moldura dentro do jogo
-		        glColor4f(1,1,1,0.5);
-		        drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureGUI[MOLDURA]);
+			        glColor4f(1,1,1,0.5);
+			        drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureGUI[MOLDURA]);
 		        // Madeira atrás da pontuação
-		        glColor4f(1,1,1,1);
-		        drawOverlay(265,80,0,250,250,true,textureGUI[WOODPLATE]);
+			        glColor4f(1,1,1,1);
+			        drawOverlay(265,80,0,250,250,true,textureGUI[WOODPLATE]);
 		        // Portrait no canto esquerdo inferior
-		        drawWithinCamera(cam.gui->portraitX,cam.gui->portraitY,0,cam.gui->portraitSize,cam.gui->portraitSize,0,textureGUI[PORTRAIT],cam.gui->portraitframe,cam.gui->portraittotal_frames,1);
+		        	drawWithinCamera(cam.gui->portraitX,cam.gui->portraitY,0,cam.gui->portraitSize,cam.gui->portraitSize,0,textureGUI[PORTRAIT],cam.gui->portraitframe,cam.gui->portraittotal_frames,1);
 		        // Pontuação e nível da espada
-		        char str[100];
-		        sprintf(str,"-Sword lv: %.0f",(p1.sword->size-100)/4);
-		        drawText(GLUT_BITMAP_HELVETICA_18,str,210,80);
-		        sprintf(str,"    -Points: %d",p1.points);
-		        drawText(GLUT_BITMAP_HELVETICA_18,str,210,60);
+			        char str[100];
+			        sprintf(str,"-Sword lv: %.0f",(p1.sword->size-100)/4);
+			        drawText(GLUT_BITMAP_HELVETICA_18,str,210,80);
+			        sprintf(str,"    -Points: %d",p1.points);
+			        drawText(GLUT_BITMAP_HELVETICA_18,str,210,60);
 		        // Efeito de escurecer + restart/pause/quit
-		        off_shade(cam.gui->restart);
-	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]); // Restart Button
-	        	off_shade(cam.gui->quit);
-	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->quitSize,cam.gui->quitSize,cam.gui->quit,textureGUI[cam.gui->textureQuit]); // Quit Button
-	        	off_shade(cam.gui->pause);
-	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->pauseSize,cam.gui->pauseSize,cam.gui->pause,textureGUI[cam.gui->texturePause]);
-	        	
-	        // Effect
-	        	// drawObject(rotationConvert(p1.sword->size,0,p1.sword->rotation,'x')+p1.x, rotationConvert(p1.sword->size,0,p1.sword->rotation,'y')+p1.y, 0, 100,&cam,true, 0);
+			        off_shade(cam.gui->restart);
+		        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]); // Restart Button
+		        	off_shade(cam.gui->quit);
+		        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->quitSize,cam.gui->quitSize,cam.gui->quit,textureGUI[cam.gui->textureQuit]); // Quit Button
+		        	off_shade(cam.gui->pause);
+		        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->pauseSize,cam.gui->pauseSize,cam.gui->pause,textureGUI[cam.gui->texturePause]);
 	    }
 		break;	
     }
