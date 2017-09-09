@@ -87,7 +87,7 @@ void drawObject(double x, double y, double z, double sizex, double sizey,Camera 
 	glPopMatrix();
 }
 
-void drawOnScreen(double x, double y, double z, double sizex,double sizey, double degree, GLuint texture,int frame,int total_frames,int frame_orientation)
+void drawWithinCamera(double x, double y, double z, double sizex,double sizey, double degree, GLuint texture,int frame,int total_frames,int frame_orientation)
 {
 	/*
 		Nesta função, a origem é transladada para a posição local do player e utilizada como referencia para desenhar o mesmo a partir do centro

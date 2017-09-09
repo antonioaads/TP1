@@ -32,7 +32,7 @@
 #define MAP_BORDERY 4000
 #define MAX_COLLECTABLES 50
 
-enum GAME_STATE{MENU=-1,DEAD,PAUSE,QUIT,GAME_0};
+enum GAME_STATE{MENU=-1,HIGHSCORE_MENU,DEAD,PAUSE,QUIT,GAME_0};
 enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
 enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON,MIKO,KITSUNE};
 enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT,MOLDURA};
@@ -157,6 +157,7 @@ void reshape_callback(int w,int h){
 
 void stateMachine()
 {
+    
     switch(gameState)
     {
         case MENU:
@@ -170,6 +171,8 @@ void stateMachine()
 					break;
 
 					case HIGHSCORE:
+
+						gameState=HIGHSCORE_MENU;
 					break;
 
 					case EXIT:
@@ -304,6 +307,11 @@ void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
     
     switch(gameState)
     {
+    	case HIGHSCORE_MENU:
+			if(key=='x')
+				gameState=MENU;
+		break;
+
     	case GAME_0:
 	    	// Pause ingame
 		   	if(key=='p' && gameState!=PAUSE && gameState!=MENU)
@@ -465,6 +473,26 @@ void draw_callback(void){
 
     switch (gameState)
     {
+    	case HIGHSCORE_MENU:
+		{
+			// Cor de fundo
+			glColor4d(0.4,0.2,0.3,1);
+			drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,0);
+			// Desenhar madeira
+			glColor4d(1,1,1,1);
+			drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT*4,true,textureGUI[WOODPLATE]);
+			// Escrever pontuação
+			char str[100];
+	        sprintf(str,"Top Score: ");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,WIDTH/2-100,3.8*HEIGHT/5);
+	        for(int x=0;x<5;x++)
+	        {
+	        	sprintf(str,"Fulano %d \t\t %d",x,top_player_scores[x]);
+	        	drawText(GLUT_BITMAP_HELVETICA_18,str,300,500-x*100);	
+			}
+		}
+	    break;
+
     	case MENU:
     	// Desenha menu inicial
     		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH*1.5,HEIGHT,true,textureMenu[menuSelection]);
@@ -474,6 +502,7 @@ void draw_callback(void){
     	case PAUSE:	// junto todos os cases em um único
     	case DEAD:
     	case GAME_0:
+    	{
     		// Desenhar Background
 		        glColor3f(1,1,1);
 		        drawBg(0,0,0, MAP_BORDERX,MAP_BORDERY, &cam, true, textureBackground);
@@ -499,24 +528,29 @@ void draw_callback(void){
 	  		// Desenhar Player e Espada
 		        // Sombra
 	        		glColor4f(1,1,1,0.5);
-	        		drawOnScreen(p1.localx, (p1.localy-p1.sizex/2-10), 0, 50, 50, 0, textureShadowblob,1,1,1);
+	        		drawWithinCamera(p1.localx, (p1.localy-p1.sizex/2-10), 0, 50, 50, 0, textureShadowblob,1,1,1);
 	        		glColor4f(1,1,1,1);
 
 		        glColor4f(1,1,1,1);
-		        drawOnScreen(p1.localx,p1.localy,0,p1.sizex,p1.sizey,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
+		        drawWithinCamera(p1.localx,p1.localy,0,p1.sizex,p1.sizey,0,texturePlayer,p1.frame,p1.total_frames,p1.frame_orientation);
 		        drawSword(p1.localx,p1.localy,0,p1.sword->size,p1.sword->fixed_width,p1.sword->rotation,textureSword,1,1,1);
 
 	  		// Desenha Menus por cima
+		        // Moldura dentro do jogo
 		        glColor4f(1,1,1,0.5);
 		        drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureGUI[MOLDURA]);
+		        // Madeira atrás da pontuação
 		        glColor4f(1,1,1,1);
 		        drawOverlay(265,80,0,250,250,true,textureGUI[WOODPLATE]);
-		        drawOnScreen(cam.gui->portraitX,cam.gui->portraitY,0,cam.gui->portraitSize,cam.gui->portraitSize,0,textureGUI[PORTRAIT],cam.gui->portraitframe,cam.gui->portraittotal_frames,1);
+		        // Portrait no canto esquerdo inferior
+		        drawWithinCamera(cam.gui->portraitX,cam.gui->portraitY,0,cam.gui->portraitSize,cam.gui->portraitSize,0,textureGUI[PORTRAIT],cam.gui->portraitframe,cam.gui->portraittotal_frames,1);
+		        // Pontuação e nível da espada
 		        char str[100];
 		        sprintf(str,"-Sword lv: %.0f",(p1.sword->size-100)/4);
 		        drawText(GLUT_BITMAP_HELVETICA_18,str,210,80);
 		        sprintf(str,"    -Points: %d",p1.points);
 		        drawText(GLUT_BITMAP_HELVETICA_18,str,210,60);
+		        // Efeito de escurecer + restart/pause/quit
 		        off_shade(cam.gui->restart);
 	        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->restartSize,cam.gui->restartSize,cam.gui->restart,textureGUI[cam.gui->textureRestart]); // Restart Button
 	        	off_shade(cam.gui->quit);
@@ -526,6 +560,7 @@ void draw_callback(void){
 	        	
 	        // Effect
 	        	// drawObject(rotationConvert(p1.sword->size,0,p1.sword->rotation,'x')+p1.x, rotationConvert(p1.sword->size,0,p1.sword->rotation,'y')+p1.y, 0, 100,&cam,true, 0);
+	    }
 		break;	
     }
     
