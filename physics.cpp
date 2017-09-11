@@ -23,7 +23,7 @@
 
 enum GAME_STATE{MENU=-1,HIGHSCORE_MENU,DEAD,PAUSE,QUIT,GAME_0};
 enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
-enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND};
+enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND,CLICK_SOUND,WIN_SOUND};
 
 using namespace std;
 
@@ -91,6 +91,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 					{
 						*gameState=DEAD;
 						p1->canSave=true;
+						Mix_PlayChannel(3,sfx[WIN_SOUND],0);
 					}
 					else
 					{
@@ -146,7 +147,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 						}
 
 						objArray[x]->isAlive=true;
-						cout << "p1_points = \n"<< p1->points << endl;
+						//cout << "p1_points = \n"<< p1->points << endl;
 
 						//break;
 					}

@@ -26,7 +26,9 @@
 	#define SLASH_PATH "music/273477__n-audioman__fatalstrike.wav"
 	#define INITWAR_PATH "music/ForHonorWarStart(boost).wav"
 	#define PICKUP_PATH "music/317789__jalastram__sfx-powerup-21.wav"
-	#define AURA_PATH "music/317756__jalastram__sfx-explosion-09.wav"
+	#define AURA_PATH "music/399904__mrthenoronha__shining-8-bit.wav"
+	#define CLICK_PATH "music/317785__jalastram__sfx-powerup-47.wav"
+	#define WIN_PATH "music/270333__littlerobotsoundfactory__jingle-win-00.wav"	//270333__littlerobotsoundfactory__jingle-win-00.wav
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -41,7 +43,7 @@ enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON,MIKO,KITSUNE};
 enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT,MOLDURA};
 enum MENU_SELECTION{START=0,HIGHSCORE,EXIT};
 enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
-enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND};
+enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND,CLICK_SOUND,WIN_SOUND};
 
 using namespace std;
 
@@ -190,6 +192,7 @@ void stateMachine()
         case MENU:
       	  	if(keyState[' '])
 			{
+				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
 				switch(menuSelection)
 				{
 					case START:
@@ -344,7 +347,10 @@ void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
     {
     	case HIGHSCORE_MENU:
 			if(key=='x')
+			{
 				gameState=MENU;
+				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
+			}
 		break;
 
     	case GAME_0:
@@ -371,9 +377,15 @@ void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
 		case MENU:
 			// Selection menu
 			if(key=='w')
+			{
 				menuSelection--;
+				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
+			}
 			if(key=='s')
+			{
 				menuSelection++;
+				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
+			}
 			if(menuSelection<0)
 				menuSelection=EXIT;
 			if(menuSelection>EXIT)
@@ -632,6 +644,8 @@ int main(int argc, char** argv){
 			sfx[INITWAR_SOUND] = Mix_LoadWAV(INITWAR_PATH);
 			sfx[PICKUP_SOUND] = Mix_LoadWAV(PICKUP_PATH);
 			sfx[AURA_SOUND] = Mix_LoadWAV(AURA_PATH);
+			sfx[CLICK_SOUND] = Mix_LoadWAV(CLICK_PATH);
+			sfx[WIN_SOUND] = Mix_LoadWAV(WIN_PATH);
 			//if (sfx[SLASH_SOUND] == NULL || sfx[INITWAR_SOUND] == NULL || sfx[PICKUP_SOUND] == NULL || sfx[AURA_SOUND])
 				//return -1;
 
@@ -668,6 +682,12 @@ int main(int argc, char** argv){
         glutMainLoop();
 
     // clean up our resources
+        Mix_FreeChunk(sfx[SLASH_SOUND]);
+        Mix_FreeChunk(sfx[INITWAR_SOUND]);
+        Mix_FreeChunk(sfx[PICKUP_SOUND]);
+        Mix_FreeChunk(sfx[AURA_SOUND]);
+        Mix_FreeChunk(sfx[CLICK_SOUND]);
+        Mix_FreeChunk(sfx[WIN_SOUND]);
 		Mix_FreeMusic(music);
 
 	// quit SDL_mixer
