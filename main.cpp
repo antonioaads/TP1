@@ -23,7 +23,10 @@
 	#include <SDL2/SDL_mixer.h>
 
 	#define MUS_PATH "music/song3.wav" // OGG(e outros) = música de fundo
-	#define SLASH_PATH "music/slash32.wav"
+	#define SLASH_PATH "music/273477__n-audioman__fatalstrike.wav"
+	#define INITWAR_PATH "music/ForHonorWarStart(boost).wav"
+	#define PICKUP_PATH "music/317789__jalastram__sfx-powerup-21.wav"
+	#define AURA_PATH "music/317756__jalastram__sfx-explosion-09.wav"
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -38,13 +41,14 @@ enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON,MIKO,KITSUNE};
 enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT,MOLDURA};
 enum MENU_SELECTION{START=0,HIGHSCORE,EXIT};
 enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
+enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND};
 
 using namespace std;
 
 // Arquivo de musica (ponteiro)
 	Mix_Music *music = NULL;
 // Arquivo de SFX
-	Mix_Chunk *slash_sound = NULL;
+	Mix_Chunk *sfx[10];
 
 // Vetor de nomes dos 5 melhores jogadores
 	string top_player_names[5];
@@ -55,7 +59,8 @@ using namespace std;
     bool keyState[300];
     int gameState=MENU;
     int menuSelection=START;
-    double splash_accel=0.00005,splash_vel=0,splash_alpha=1;
+    double splash_accel=1,splash_vel=0,splash_alpha=1;
+    bool first_time_splash=true;
 
 // Instanciar classes
     Player p1(WIDTH,HEIGHT);
@@ -112,7 +117,7 @@ void importTextures()
       printf("Erro do SOIL: '%s'\n", SOIL_last_result());
 }
 
-void exitFromGame()
+void saveGame()
 {
 	// Salvar no arquivo
 		ofstream arquivo;
@@ -120,7 +125,11 @@ void exitFromGame()
 		for(int x=0;x<5;x++)
 			arquivo << top_player_scores[x] << endl;
 		arquivo.close();
+}
 
+void exitFromGame()
+{
+	saveGame();
 	exit(0);
 }
 
@@ -161,7 +170,21 @@ void reshape_callback(int w,int h){
 
 void stateMachine()
 {
-    
+	if(first_time_splash)
+	{
+		splash_vel+=1/(10000-splash_accel*splash_accel);
+		splash_alpha-=splash_vel;
+		if(splash_alpha<=0)
+		{
+			splash_alpha=0;
+			first_time_splash=false;
+		}
+    }
+
+    // Retornar com a musica
+		if(!Mix_Playing(2))
+			Mix_ResumeMusic();
+
     switch(gameState)
     {
         case MENU:
@@ -170,8 +193,10 @@ void stateMachine()
 				switch(menuSelection)
 				{
 					case START:
+						Mix_PauseMusic();
+						Mix_PlayChannel(2, sfx[INITWAR_SOUND], 0);
 						gameState=GAME_0;
-						reset(&p1,&cam,objArray,MAX_COLLECTABLES);
+						reset(&p1,&cam,objArray);
 					break;
 
 					case HIGHSCORE:
@@ -185,8 +210,6 @@ void stateMachine()
 
 				}
 			}
-			splash_vel+=splash_accel;
-			splash_alpha-=splash_vel;
         break;
 
         case QUIT:
@@ -234,7 +257,7 @@ void stateMachine()
         
         case GAME_0:
             // Physics
-                calculatePhysics(&p1, &cam, keyState, objArray, MAX_COLLECTABLES, MAP_BORDERX, MAP_BORDERY, &gameState, slash_sound);
+                calculatePhysics(&p1, &cam, keyState, objArray, &gameState, sfx);
             // Animation Handling
                 // Player
                 	// Selecionar qual tipo de movimentação do player
@@ -436,7 +459,7 @@ void mouse_callback(int button, int state, int x, int y)
 		// YES
 		   	if(x<cam.gui->restartX && x>cam.gui->restartX-cam.gui->restartSize/2 && y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY)
 			{
-				reset(&p1,&cam,objArray,MAX_COLLECTABLES);
+				reset(&p1,&cam,objArray);
 				cam.gui->restart=false;
 				gameState=GAME_0;
 			}
@@ -453,7 +476,8 @@ void mouse_callback(int button, int state, int x, int y)
 		// YES
 		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
 			{
-				exitFromGame();
+				saveGame();
+				gameState = MENU;
 			}
 		// NO
 			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
@@ -498,9 +522,11 @@ void draw_callback(void){
 	        drawText(GLUT_BITMAP_HELVETICA_18,str,WIDTH/2-100,3.8*HEIGHT/5);
 	        for(int x=0;x<5;x++)
 	        {
-	        	sprintf(str,"Fulano %d \t\t %d",x,top_player_scores[x]);
+	        	sprintf(str,"Fulano %d \t\t\t\t\t\t\t\t\t\t\t\t\t %d",x,top_player_scores[x]);
 	        	drawText(GLUT_BITMAP_HELVETICA_18,str,300,500-x*100);	
 			}
+			sprintf(str,"Pressione X para voltar");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,100,50);
 		}
 	    break;
 
@@ -509,8 +535,11 @@ void draw_callback(void){
     		glColor4f(1,1,1,1);
     		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH*1.5,HEIGHT,true,textureMenu[menuSelection]);
     		// Desenhar splash screen
-    		glColor4f(1,1,1,splash_alpha);
-    		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureSplash);
+    		if(first_time_splash)
+	    	{
+	    		glColor4f(1,1,1,splash_alpha);
+	    		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureSplash);
+    		}
     	break;
 
     	case QUIT:	// Como quero que fique desenhado por baixo o último estado do jogo
@@ -570,9 +599,9 @@ void draw_callback(void){
 		        	drawWithinCamera(cam.gui->portraitX,cam.gui->portraitY,0,cam.gui->portraitSize,cam.gui->portraitSize,0,textureGUI[PORTRAIT],cam.gui->portraitframe,cam.gui->portraittotal_frames,1);
 		        // Pontuação e nível da espada
 			        char str[100];
-			        sprintf(str,"-Sword lv: %.0f",(p1.sword->size-100)/4);
+			        sprintf(str,"Sword lv: %.0f",(p1.sword->size-100)/4);
 			        drawText(GLUT_BITMAP_HELVETICA_18,str,210,80);
-			        sprintf(str,"    -Points: %d",p1.points);
+			        sprintf(str,"    Points: %d",p1.points);
 			        drawText(GLUT_BITMAP_HELVETICA_18,str,210,60);
 		        // Efeito de escurecer + restart/pause/quit
 			        off_shade(cam.gui->restart);
@@ -599,9 +628,12 @@ int main(int argc, char** argv){
 				return -1;
 
 		// Load our sound effect
-			slash_sound = Mix_LoadWAV(SLASH_PATH);
-			if (slash_sound == NULL)
-				return -1;
+			sfx[SLASH_SOUND] = Mix_LoadWAV(SLASH_PATH);
+			sfx[INITWAR_SOUND] = Mix_LoadWAV(INITWAR_PATH);
+			sfx[PICKUP_SOUND] = Mix_LoadWAV(PICKUP_PATH);
+			sfx[AURA_SOUND] = Mix_LoadWAV(AURA_PATH);
+			//if (sfx[SLASH_SOUND] == NULL || sfx[INITWAR_SOUND] == NULL || sfx[PICKUP_SOUND] == NULL || sfx[AURA_SOUND])
+				//return -1;
 
 		// Load our music
 			music = Mix_LoadMUS(MUS_PATH);

@@ -8,7 +8,10 @@
 
 #define WIDTH 1024
 #define HEIGHT 768
+#define MAP_BORDERX 8000
+#define MAP_BORDERY 4000
 #define FPS 30
+#define MAX_COLLECTABLES 50
 
 #define UP 1
 #define DOWN -1
@@ -20,6 +23,7 @@
 
 enum GAME_STATE{MENU=-1,HIGHSCORE_MENU,DEAD,PAUSE,QUIT,GAME_0};
 enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
+enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND};
 
 using namespace std;
 
@@ -30,9 +34,9 @@ bool left_wall=false,right_wall=false,top_wall=false,bottom_wall=false;
 double modulo(double x)
 { return x>=0 ? x:-x; }
 
-void reset(Player *p1, Camera *cam, Collectable **objArray,int objCount) // Reseta o jogo (camera, personagem, e monstros com novas posições)
+void reset(Player *p1, Camera *cam, Collectable **objArray) // Reseta o jogo (camera, personagem, e monstros com novas posições)
 {
-	for(int x=0;x<objCount;x++)
+	for(int x=0;x<MAX_COLLECTABLES;x++)
 	{
 		objArray[x]->rePosition();
 	}
@@ -49,7 +53,7 @@ bool contraryDir(bool keyState[]) // Função que talvez auxilie em trazer o car
 	if(bottom_wall) return (!keyState['s'] && keyState['w']);
 }
 
-void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int objCount, int map_borderx, int map_bordery, int *gameState, Mix_Chunk *slash_sound)
+void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int *gameState, Mix_Chunk **sfx)
 {
 
 	// Sair do jogo
@@ -69,7 +73,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		bool colided = false;
 		double dist1;
 		
-		for(int x=0;x<objCount;x++)
+		for(int x=0;x<MAX_COLLECTABLES;x++)
 		{
 			// Colisão com o JOGADOR
 			if(objArray[x]->isAlive && objArray[x]->x - objArray[x]->sizex/2 < p1->x+p1->sizex/2 
@@ -92,6 +96,8 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 					{
 						p1->points++;
 
+						Mix_PlayChannel(1, sfx[PICKUP_SOUND], 0);
+
 						// Caso o objeto seja to tipo pixie, cresce a espada
 						if(dynamic_cast<Pixie*>(objArray[x]) && p1->sword->size <= (double)SWORD_MAX_SIZE)
 							p1->sword->size+=(double)SWORD_INCREMENT;
@@ -102,7 +108,10 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 
 						// Caso o objeto seja do tipo Miko, ativa aura de invencibilidade
 						if(dynamic_cast<Miko*>(objArray[x]))
+						{
 							p1->bless=true;
+							Mix_PlayChannel(-1,sfx[AURA_SOUND], 0);	// 1º -1/1,2,3...: numero do canal ou -1 pro primeiro livre
+						}											// 3º 0/1: única execução/loop
 					}
 				}
 
@@ -130,7 +139,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 						{
 							p1->points++;
 
-							Mix_PlayChannel(1, slash_sound, 0);
+							Mix_PlayChannel(-1, sfx[SLASH_SOUND], 0);
 							
 							if(p1->sword->size >= 15)
 								p1->sword->size-=2;
@@ -238,11 +247,11 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 		// Perceber qual borda do mapa colidiu
 			bool left_wall=false,right_wall=false,top_wall=false,bottom_wall=false;
 
-			if(p1->x + WIDTH/2 >= map_borderx-10)
+			if(p1->x + WIDTH/2 >= MAP_BORDERX-10)
 				right_wall=true;
 			if(p1->x - WIDTH/2 <= 10)
 				left_wall=true;
-			if(p1->y + HEIGHT/2 >= map_bordery-10)
+			if(p1->y + HEIGHT/2 >= MAP_BORDERY-10)
 				top_wall=true;
 			if(p1->y - HEIGHT/2 <= 10)
 				bottom_wall=true;
@@ -270,7 +279,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 	}
 	objArray[0]->delay_randomv++;
 	
-	for(int x=0;x<objCount;x++)
+	for(int x=0;x<MAX_COLLECTABLES;x++)
 	{
 		if(objArray[0]->canRand)
 		{
@@ -279,9 +288,9 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 			objArray[x]->canRand=false;
 		}
 
-		if(objArray[x]->x >= map_borderx-500 || objArray[x]->x <= 500)
+		if(objArray[x]->x >= MAP_BORDERX-500 || objArray[x]->x <= 500)
 			objArray[x]->vx*=-1;
-		if(objArray[x]->y >= map_bordery-400 || objArray[x]->y <= 400)
+		if(objArray[x]->y >= MAP_BORDERY-400 || objArray[x]->y <= 400)
 			objArray[x]->vy*=-1;
 
 		if(!(dynamic_cast<Pixie*>(objArray[x])))
