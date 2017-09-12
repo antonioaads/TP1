@@ -21,7 +21,7 @@
 #define SWORD_INCREMENT 4
 #define SWORD_MAX_SIZE 500
 
-enum GAME_STATE{MENU=-1,HIGHSCORE_MENU,DEAD,PAUSE,QUIT,GAME_0};
+enum GAME_STATE{MENU=-1,HIGHSCORE_MENU,HELP_MENU,CREDITS_MENU,DEAD,PAUSE,QUIT,GAME_0};
 enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
 enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND,CLICK_SOUND,WIN_SOUND};
 
@@ -91,12 +91,11 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 					{
 						*gameState=DEAD;
 						p1->canSave=true;
-						Mix_PlayChannel(3,sfx[WIN_SOUND],0);
+						Mix_PauseMusic();
+						Mix_PlayChannel(2,sfx[WIN_SOUND],0);
 					}
 					else
 					{
-						p1->points++;
-
 						Mix_PlayChannel(1, sfx[PICKUP_SOUND], 0);
 
 						// Caso o objeto seja to tipo pixie, cresce a espada
@@ -143,7 +142,7 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 							Mix_PlayChannel(-1, sfx[SLASH_SOUND], 0);
 							
 							if(p1->sword->size >= 15)
-								p1->sword->size-=2;
+								p1->sword->size-=4;
 						}
 
 						objArray[x]->isAlive=true;

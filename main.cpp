@@ -22,13 +22,13 @@
 	#include <SDL2/SDL.h>
 	#include <SDL2/SDL_mixer.h>
 
-	#define MUS_PATH "music/song3.wav" // OGG(e outros) = música de fundo
+	#define MUS_PATH "music/CloZee - Koto.mp3" // OGG(e outros) = música de fundo
 	#define SLASH_PATH "music/273477__n-audioman__fatalstrike.wav"
-	#define INITWAR_PATH "music/ForHonorWarStart(boost).wav"
+	#define INITWAR_PATH "music/ForHonorWarStartFINAL.wav"
 	#define PICKUP_PATH "music/317789__jalastram__sfx-powerup-21.wav"
 	#define AURA_PATH "music/399904__mrthenoronha__shining-8-bit.wav"
 	#define CLICK_PATH "music/317785__jalastram__sfx-powerup-47.wav"
-	#define WIN_PATH "music/270333__littlerobotsoundfactory__jingle-win-00.wav"	//270333__littlerobotsoundfactory__jingle-win-00.wav
+	#define WIN_PATH "music/jiraiya_theme_shortBOOST.wav"	//270333__littlerobotsoundfactory__jingle-win-00.wav
 
 #define WIDTH 1024
 #define HEIGHT 768
@@ -37,11 +37,11 @@
 #define MAP_BORDERY 4000
 #define MAX_COLLECTABLES 50
 
-enum GAME_STATE{MENU=-1,HIGHSCORE_MENU,DEAD,PAUSE,QUIT,GAME_0};
+enum GAME_STATE{MENU=-1,HIGHSCORE_MENU,HELP_MENU,CREDITS_MENU,DEAD,PAUSE,QUIT,GAME_0};
 enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
 enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON,MIKO,KITSUNE};
 enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT,MOLDURA};
-enum MENU_SELECTION{START=0,HIGHSCORE,EXIT};
+enum MENU_SELECTION{START=0,HIGHSCORE,HELP,CREDITS,EXIT};
 enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
 enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND,CLICK_SOUND,WIN_SOUND};
 
@@ -78,9 +78,12 @@ using namespace std;
     GLuint textureAura;
     GLuint textureShadowblob;
     GLuint textureGUI[20];
-    GLuint textureMenu[3];
+    GLuint textureMenu[10];
     GLuint textureSplash;
     GLuint textureSideFace;
+    GLuint textureHelp;
+    GLuint textureCredits;
+    GLuint textureBackButton;
 
 void importTextures()
 {
@@ -111,9 +114,14 @@ void importTextures()
     textureShadowblob = SOIL_load_OGL_texture("tex/shadow.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[START] = SOIL_load_OGL_texture("tex/menuSTART.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[HIGHSCORE] = SOIL_load_OGL_texture("tex/menuHIGHSCORE.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureMenu[HELP] = SOIL_load_OGL_texture("tex/menuHELP.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureMenu[CREDITS] = SOIL_load_OGL_texture("tex/menuCREDITS.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureMenu[EXIT] = SOIL_load_OGL_texture("tex/menuEXIT.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureSplash = SOIL_load_OGL_texture("tex/splash.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureSideFace = SOIL_load_OGL_texture("tex/sideface.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureHelp = SOIL_load_OGL_texture("tex/sideface.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureCredits = SOIL_load_OGL_texture("tex/credits.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureBackButton = SOIL_load_OGL_texture("tex/xbutton.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
 
     if (texturePlayer == 0) 
       printf("Erro do SOIL: '%s'\n", SOIL_last_result());
@@ -170,6 +178,11 @@ void reshape_callback(int w,int h){
     glMatrixMode(GL_MODELVIEW);
 }
 
+void key_input_name(unsigned char key, int x,int y)
+{
+
+}
+
 void stateMachine()
 {
 	if(first_time_splash)
@@ -203,8 +216,15 @@ void stateMachine()
 					break;
 
 					case HIGHSCORE:
-
 						gameState=HIGHSCORE_MENU;
+					break;
+
+					case HELP:
+						gameState=HELP_MENU;
+					break;
+
+					case CREDITS:
+						gameState=CREDITS_MENU;
 					break;
 
 					case EXIT:
@@ -252,6 +272,9 @@ void stateMachine()
 				p1.canSave=false;
         	}
         	cam.gui->restart=true;
+
+        	//glutKeyboardFunc(key_input_name);
+       
         break;
 
         case PAUSE:
@@ -345,6 +368,8 @@ void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
     
     switch(gameState)
     {
+    	case HELP_MENU:
+    	case CREDITS_MENU:
     	case HIGHSCORE_MENU:
 			if(key=='x')
 			{
@@ -410,20 +435,13 @@ void passive_mouse_callback(int x, int y){
 
 	y=HEIGHT-y; // transladar/inverter origem do mouse  ||  daqui em diante... lembrete não mais tão necessário assim
 
-	if(p1.sword->swordMode==SWORD_MOUSE && x-p1.x+y-p1.y!=0)
+	if(p1.sword->swordMode==SWORD_MOUSE && x-p1.x+y-p1.y!=0)	// Caso o modo de controle da espada seja MOUSE e deltaX + deltaY seja diferente de zero (por causa da divisão)
 	{
 		double senteta=(y-p1.y)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2));
 		double costeta=(x-p1.x)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2));
-		double teta=asin(modulo((y-p1.y)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2))))*180/M_PI;
+		double teta=85-atan2(x-WIDTH/2,y-HEIGHT/2)*180/M_PI;
 
-		if(senteta>=0 && costeta>=0)
-			p1.sword->rotation=teta;
-		else if(senteta>=0 && costeta<=0)
-			p1.sword->rotation=180-teta;
-		else if(senteta<=0 && costeta<=0)
-			p1.sword->rotation=teta+180;
-		else
-			p1.sword->rotation=360-teta;
+		p1.sword->rotation=teta;
 	}
 
 	if(gameState==DEAD)
@@ -521,12 +539,17 @@ void draw_callback(void){
     {
     	case HIGHSCORE_MENU:
 		{
-			// Cor de fundo
+			// Fundo
 			glColor4d(1,1,1,1);
 			drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureSideFace);
 			// Desenhar madeira
 			glColor4d(1,1,1,0.6);
 			drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT*4,true,textureGUI[WOODPLATE]);
+			// Desenhar botão
+			glColor4d(0.5,1,1,1);
+			drawOverlay(150,85,0,400,350,true,textureGUI[WOODPLATE]);
+			glColor4d(1,1,1,1);
+			drawOverlay(150,80,0,200,100,true,textureBackButton);
 			// Escrever pontuação
 			glColor4d(1,1,1,1);
 			char str[100];
@@ -537,9 +560,36 @@ void draw_callback(void){
 	        	sprintf(str,"Fulano %d \t\t\t\t\t\t\t\t\t\t\t\t\t %d",x,top_player_scores[x]);
 	        	drawText(GLUT_BITMAP_HELVETICA_18,str,300,500-x*100);	
 			}
-			sprintf(str,"Pressione X para voltar");
-	        drawText(GLUT_BITMAP_HELVETICA_18,str,100,50);
 		}
+	    break;
+
+	    case HELP_MENU:
+	    	// Fundo
+	    	glColor4d(1,1,1,1);
+	    	drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureHelp);
+	    break;
+
+	    case CREDITS_MENU:
+	    	// Fundo
+	    	glColor4d(1,1,1,1);
+	    	drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureCredits);
+	    	drawOverlay(150,80,0,200,100,true,textureBackButton);
+	    	// Texto
+	    	char str[10000];
+	        sprintf(str,"Art by Rodrigo D Moreira");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-100);
+	        sprintf(str,"Programming by Antonio D Sousa and Rodrigo D Moreira");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-150);
+	        sprintf(str,"Music:");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-200);
+	        sprintf(str,"                 Koto by CloZee");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-250);
+	        sprintf(str,"                 SFX by Jalastram, N-Audioman, MrTheNoronha");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-300);
+	        sprintf(str,"                 Entrance SFX by Ubisoft(For Honor team)");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-350);
+	        sprintf(str,"                 Jiraya Theme from Naruto");
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-400);
 	    break;
 
     	case MENU:
@@ -622,6 +672,13 @@ void draw_callback(void){
 		        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->quitSize,cam.gui->quitSize,cam.gui->quit,textureGUI[cam.gui->textureQuit]); // Quit Button
 		        	off_shade(cam.gui->pause);
 		        	drawOverlay(WIDTH/2,HEIGHT/2,0,cam.gui->pauseSize,cam.gui->pauseSize,cam.gui->pause,textureGUI[cam.gui->texturePause]);
+		        // Desenhar Pontuação no restart
+		        	if(gameState==DEAD)
+		        	{
+		        		glColor4f(0.8,0,0.2,1);
+			        	sprintf(str,"Total Points: %d",p1.points);
+				        drawText(GLUT_BITMAP_HELVETICA_18,str,WIDTH/2-50,HEIGHT/2+120);
+				    }
 	    }
 		break;	
     }
