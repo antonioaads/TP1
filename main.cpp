@@ -33,16 +33,23 @@
 #define WIDTH 1024
 #define HEIGHT 768
 #define FPS 60
-#define MAP_BORDERX 8000
+#define MAP_BORDERX 8000	// Delimitação do mapa (usado para tamanho e colisões com borda)
 #define MAP_BORDERY 4000
-#define MAX_COLLECTABLES 50
+#define MAX_COLLECTABLES 65 // Caso aumente, mudar em physics.cpp também
 
+// Estado do jogo
 enum GAME_STATE{MENU=-1,HIGHSCORE_MENU,HELP_MENU,CREDITS_MENU,DEAD,PAUSE,QUIT,GAME_0};
+// Conjunto de animações do player
 enum PLAYER_ANIM{IDLE=0,WALK,BACKIDLE,BACKWALK};
-enum COLLECTABEL_TEXTURES{PIXIE=0,DEMON,MIKO,KITSUNE};
+// Textura de coletáveis
+enum COLLECTABLE_TEXTURES{PIXIE=0,DEMON,MIKO,KITSUNE};
+// Texturas do GUI
 enum GUI_TEXTURES{RESTARTGREYED=0,RESTARTBRIGHT,RESTARTBRIGHTYES,RESTARTBRIGHTNO,QUITGREYED,QUITBRIGHT,QUITBRIGHTYES,QUITBRIGHTNO,TEXPAUSE,WOODPLATE,PORTRAIT,MOLDURA};
+// "Sub-estado" do jogo quando no menu
 enum MENU_SELECTION{START=0,HIGHSCORE,HELP,CREDITS,EXIT};
+// Modo de controle da espada
 enum SWORD_MODE{SWORD_KEY=0,SWORD_MOUSE};
+// Efeitos sonoros do jogo
 enum SFX{SLASH_SOUND=0,INITWAR_SOUND,PICKUP_SOUND,AURA_SOUND,CLICK_SOUND,WIN_SOUND};
 
 using namespace std;
@@ -54,6 +61,11 @@ using namespace std;
 
 // Vetor de nomes dos 5 melhores jogadores
 	string top_player_names[5];
+	string name;
+
+// Controle da callback para a glutKeyboardFunc quando em estado DEAD
+	bool word_input=false;
+
 // Vetor de pontuação dos 
 	int top_player_scores[5];
 
@@ -85,7 +97,7 @@ using namespace std;
     GLuint textureCredits;
     GLuint textureBackButton;
 
-void importTextures()
+void importTextures() 	// Faz o que o nome sugere =D
 {
     texturePlayerAnim[IDLE] = SOIL_load_OGL_texture("tex/samuraiIDLE.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     texturePlayerAnim[WALK] = SOIL_load_OGL_texture("tex/samuraiWALK.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
@@ -130,11 +142,18 @@ void importTextures()
 void saveGame()
 {
 	// Salvar no arquivo
-		ofstream arquivo;
-		arquivo.open ("top_score.txt");
+		ofstream arquivoP,arquivoN;
+		arquivoP.open ("top_score.txt");
+		arquivoN.open ("top_names.txt");
+		// Salvar cada pontuação
 		for(int x=0;x<5;x++)
-			arquivo << top_player_scores[x] << endl;
-		arquivo.close();
+		{
+			arquivoP << top_player_scores[x] << endl;
+			arquivoN << top_player_names[x].c_str() << endl;
+			printf("SALVEI - %s\n",top_player_names[x].c_str());
+		}
+		arquivoP.close();
+		arquivoN.close();
 }
 
 void exitFromGame()
@@ -151,13 +170,17 @@ void init(){
     initObj(objArray,MAX_COLLECTABLES,(double)MAP_BORDERY);
 
     // Carregar Melhores Pontuações
-    ifstream arquivo;
-    arquivo.open("top_score.txt");
-    for(int x=0; arquivo.peek()!=-1; x++)
+    ifstream arquivoP,arquivoN;
+    arquivoP.open("top_score.txt");
+    arquivoN.open("top_names.txt");
+    for(int x=0; x<5; x++)
     {
-    	arquivo >> top_player_scores[x];
+    	arquivoP >> top_player_scores[x];
+    	arquivoN >> top_player_names[x];
+    	printf("topplayernames-%d = %s\n", x, top_player_names[x]);
     }
-    arquivo.close();
+    arquivoP.close();
+    arquivoN.close();
 
     // Importa texturas
     importTextures();
@@ -178,13 +201,177 @@ void reshape_callback(int w,int h){
     glMatrixMode(GL_MODELVIEW);
 }
 
+void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
+    
+    switch(gameState)
+    {
+    	case HELP_MENU:
+    	case CREDITS_MENU:
+    	case HIGHSCORE_MENU:
+			if(key=='x')
+			{
+				gameState=MENU;
+				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
+			}
+		break;
+
+    	case GAME_0:
+	    	// Pause ingame
+		   	if(key=='p' && gameState!=PAUSE && gameState!=MENU)
+		   	{
+		   		gameState = PAUSE;
+				cam.gui->pause=true;
+		   	}
+		   	if(key=='x' && p1.sword->swordMode==SWORD_KEY)
+		   		p1.sword->swordMode=SWORD_MOUSE;
+		   	else if(key=='x')
+		   		p1.sword->swordMode=SWORD_KEY;
+		break;
+
+		case PAUSE:
+			if(key=='p' && gameState==PAUSE)
+			{
+				gameState=GAME_0;
+				cam.gui->pause=false;
+			}
+		break;
+
+		case MENU:
+			// Selection menu
+			if(key == 'n')
+			{
+				name = "";
+				word_input = true;
+			}
+			if(key=='w')
+			{
+				menuSelection--;
+				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
+			}
+			if(key=='s')
+			{
+				menuSelection++;
+				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
+			}
+			if(menuSelection<0)
+				menuSelection=EXIT;
+			if(menuSelection>EXIT)
+				menuSelection=START;
+		break;
+    }
+
+	// Vetor de estados de teclas
+		keyState[(int)key]=true;
+}
+
+void key_release_callback(unsigned char key,int x,int y){
+    keyState[(int)key]=false;
+}
+
+void passive_mouse_callback(int x, int y){
+	/*
+		Lembrete ultra fcking importante: Coordenadas do mouse tem como origem o canto superior esquerdo da tela WTF
+	*/
+
+	y=HEIGHT-y; // transladar/inverter origem do mouse  ||  daqui em diante... lembrete não mais tão necessário assim
+
+	if(p1.sword->swordMode==SWORD_MOUSE && x-p1.x+y-p1.y!=0)	// Caso o modo de controle da espada seja MOUSE e deltaX + deltaY seja diferente de zero (por causa da divisão)
+	{
+		double senteta=(y-p1.y)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2));
+		double costeta=(x-p1.x)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2));
+		double teta=85-atan2(x-WIDTH/2,y-HEIGHT/2)*180/M_PI;
+
+		p1.sword->rotation=teta;
+	}
+
+	if(gameState==DEAD)
+	{
+		if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX-cam.gui->restartSize/2
+			&& y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY-cam.gui->restartSize/2)
+		{
+		   	cam.gui->textureRestart=RESTARTBRIGHT;
+
+		   	// YES
+		   	if(x<cam.gui->restartX && x>cam.gui->restartX-cam.gui->restartSize/2 && y>cam.gui->restartY-cam.gui->restartSize/2 && y<cam.gui->restartY)
+				cam.gui->textureRestart=RESTARTBRIGHTYES;
+			// NO
+			else if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX  && y>cam.gui->restartY-cam.gui->restartSize/2 && y<cam.gui->restartY)
+				cam.gui->textureRestart=RESTARTBRIGHTNO;
+		}
+		else
+			cam.gui->textureRestart=RESTARTGREYED;
+	}
+
+	if(gameState==QUIT)
+	{
+		if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX-cam.gui->quitSize/2
+			&& y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY-cam.gui->quitSize/2)
+		{
+		   	cam.gui->textureQuit=QUITBRIGHT;
+
+		   	// YES
+		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y>cam.gui->quitY-cam.gui->quitSize/2 && y<cam.gui->quitY)
+				cam.gui->textureQuit=QUITBRIGHTYES;
+			// NO
+			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y>cam.gui->quitY-cam.gui->quitSize/2 && y<cam.gui->quitY)
+				cam.gui->textureQuit=QUITBRIGHTNO;
+		}
+		else
+			cam.gui->textureQuit=QUITGREYED;
+	}
+}
+
+void mouse_callback(int button, int state, int x, int y)
+{
+	// Reconhece se mouse está em cima do botão do restart
+	if(gameState == DEAD && !word_input)
+	{
+		// YES
+		   	if(x<cam.gui->restartX && x>cam.gui->restartX-cam.gui->restartSize/2 && y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY)
+			{
+				reset(&p1,&cam,objArray);
+				cam.gui->restart=false;
+				gameState=GAME_0;
+			}
+		// NO
+			else if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX  && y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY)
+			{
+				gameState=MENU;
+			}
+	}
+
+	// Mouse no botão de sair
+	if(gameState == QUIT)
+	{
+		// YES
+		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
+			{
+				saveGame();
+				gameState = MENU;
+			}
+		// NO
+			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
+			{
+				cam.gui->quit=false;
+				gameState=GAME_0;
+			}
+	}
+}
+
 void key_input_name(unsigned char key, int x,int y)
 {
-
+	if(key != 13 && key !=  8)
+		name += key;
+	else if(key == 8)
+		name.pop_back();
+	else
+		word_input=false;
 }
 
 void stateMachine()
 {
+	cout << name << endl;
+
 	if(first_time_splash)
 	{
 		splash_vel+=1/(10000-splash_accel*splash_accel);
@@ -199,6 +386,12 @@ void stateMachine()
     // Retornar com a musica
 		if(!Mix_Playing(2))
 			Mix_ResumeMusic();
+
+	// Define input como controle ou palavras
+	if(word_input)
+		glutKeyboardFunc(key_input_name);
+	else
+		glutKeyboardFunc(key_press_callback);  
 
     switch(gameState)
     {
@@ -242,6 +435,9 @@ void stateMachine()
         case DEAD:
         	if(p1.canSave)
         	{
+        		// Garantir que esteja organizado o vetor de pontuação em ordem crescente
+        		printf("Fadd o nome: %s\n",name.c_str());
+
         		for(int x=0;x<5;x++)
 				{
 					for(int y=0;y<4;y++)
@@ -249,32 +445,47 @@ void stateMachine()
 						if(top_player_scores[x]<top_player_scores[x+1])
 						{
 							int a=top_player_scores[x];
+							string b=top_player_names[x];
+
 							top_player_scores[x]=top_player_scores[x+1];
+							top_player_names[x]=top_player_names[x+1];
+
 							top_player_scores[x+1]=a;
+							top_player_names[x+1]=b;
 						}
 					}
 				}
 
+				printf("Gadd o nome: %s\n",name.c_str());
+
+				// Inserir no vetor garantindo organização
         		for(int x=0; x<=5;x++)
         		{
         			if(p1.points > top_player_scores[x])
         			{
+        				// Arredar para a esquerda todos os nomes/pontuações
         				for(int y=5;y>x;y--)
         				{
         					top_player_scores[y]=top_player_scores[y-1];
+        					// s.push_back(top_player_names[y-1]);
+        					// top_player_names[y]=s;
+        					printf("topname-%d = %s\n", y, top_player_names[y] );
+        					printf("topname-%d = %s\n", y-1, top_player_names[y-1] );
+        					top_player_names[y] = top_player_names[y-1];
+        					printf("topname-%d = %s\n", y, top_player_names[y] );
+        					printf("topname-%d = %s\n", y-1, top_player_names[y-1] );
         				}
-
+        				printf("Madd o nome: %s\n",name.c_str());
         				top_player_scores[x] = p1.points;
+        				top_player_names[x] = name;
+        				printf("add o nome: %s\n",name.c_str());
         				break;
         			}
         		}
 
 				p1.canSave=false;
         	}
-        	cam.gui->restart=true;
-
-        	//glutKeyboardFunc(key_input_name);
-       
+        	cam.gui->restart=true;     
         break;
 
         case PAUSE:
@@ -283,7 +494,7 @@ void stateMachine()
         
         case GAME_0:
             // Physics
-                calculatePhysics(&p1, &cam, keyState, objArray, &gameState, sfx);
+                calculatePhysics(&p1, &cam, keyState, objArray, &gameState, sfx, word_input);
             // Animation Handling
                 // Player
                 	// Selecionar qual tipo de movimentação do player
@@ -364,159 +575,6 @@ void update_callback(int x)
 	glutTimerFunc(1000/FPS,update_callback,0);
 }
 
-void key_press_callback(unsigned char key,int x,int y){ // x,y -> pos. mouse
-    
-    switch(gameState)
-    {
-    	case HELP_MENU:
-    	case CREDITS_MENU:
-    	case HIGHSCORE_MENU:
-			if(key=='x')
-			{
-				gameState=MENU;
-				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
-			}
-		break;
-
-    	case GAME_0:
-	    	// Pause ingame
-		   	if(key=='p' && gameState!=PAUSE && gameState!=MENU)
-		   	{
-		   		gameState = PAUSE;
-				cam.gui->pause=true;
-		   	}
-		   	if(key=='x' && p1.sword->swordMode==SWORD_KEY)
-		   		p1.sword->swordMode=SWORD_MOUSE;
-		   	else if(key=='x')
-		   		p1.sword->swordMode=SWORD_KEY;
-		break;
-
-		case PAUSE:
-			if(key=='p' && gameState==PAUSE)
-			{
-				gameState=GAME_0;
-				cam.gui->pause=false;
-			}
-		break;
-
-		case MENU:
-			// Selection menu
-			if(key=='w')
-			{
-				menuSelection--;
-				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
-			}
-			if(key=='s')
-			{
-				menuSelection++;
-				Mix_PlayChannel(3,sfx[CLICK_SOUND],0);
-			}
-			if(menuSelection<0)
-				menuSelection=EXIT;
-			if(menuSelection>EXIT)
-				menuSelection=START;
-		break;
-    }
-    
-
-
-	// Vetor de estados de teclas
-		keyState[(int)key]=true;
-}
-
-void key_release_callback(unsigned char key,int x,int y){
-    keyState[(int)key]=false;
-}
-
-void passive_mouse_callback(int x, int y){
-	/*
-		Lembrete ultra fcking importante: Coordenadas do mouse tem como origem o canto superior esquerdo da tela WTF
-	*/
-
-	y=HEIGHT-y; // transladar/inverter origem do mouse  ||  daqui em diante... lembrete não mais tão necessário assim
-
-	if(p1.sword->swordMode==SWORD_MOUSE && x-p1.x+y-p1.y!=0)	// Caso o modo de controle da espada seja MOUSE e deltaX + deltaY seja diferente de zero (por causa da divisão)
-	{
-		double senteta=(y-p1.y)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2));
-		double costeta=(x-p1.x)/sqrt(pow(x-p1.x,2)+pow(y-p1.y,2));
-		double teta=85-atan2(x-WIDTH/2,y-HEIGHT/2)*180/M_PI;
-
-		p1.sword->rotation=teta;
-	}
-
-	if(gameState==DEAD)
-	{
-		if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX-cam.gui->restartSize/2
-			&& y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY-cam.gui->restartSize/2)
-		{
-		   	cam.gui->textureRestart=RESTARTBRIGHT;
-
-		   	// YES
-		   	if(x<cam.gui->restartX && x>cam.gui->restartX-cam.gui->restartSize/2 && y>cam.gui->restartY-cam.gui->restartSize/2 && y<cam.gui->restartY)
-				cam.gui->textureRestart=RESTARTBRIGHTYES;
-			// NO
-			else if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX  && y>cam.gui->restartY-cam.gui->restartSize/2 && y<cam.gui->restartY)
-				cam.gui->textureRestart=RESTARTBRIGHTNO;
-		}
-		else
-			cam.gui->textureRestart=RESTARTGREYED;
-	}
-
-	if(gameState==QUIT)
-	{
-		if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX-cam.gui->quitSize/2
-			&& y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY-cam.gui->quitSize/2)
-		{
-		   	cam.gui->textureQuit=QUITBRIGHT;
-
-		   	// YES
-		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y>cam.gui->quitY-cam.gui->quitSize/2 && y<cam.gui->quitY)
-				cam.gui->textureQuit=QUITBRIGHTYES;
-			// NO
-			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y>cam.gui->quitY-cam.gui->quitSize/2 && y<cam.gui->quitY)
-				cam.gui->textureQuit=QUITBRIGHTNO;
-		}
-		else
-			cam.gui->textureQuit=QUITGREYED;
-	}
-}
-
-void mouse_callback(int button, int state, int x, int y)
-{
-	// Reconhece se mouse está em cima do botão do restart
-	if(gameState == DEAD)
-	{
-		// YES
-		   	if(x<cam.gui->restartX && x>cam.gui->restartX-cam.gui->restartSize/2 && y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY)
-			{
-				reset(&p1,&cam,objArray);
-				cam.gui->restart=false;
-				gameState=GAME_0;
-			}
-		// NO
-			else if(x<cam.gui->restartX+cam.gui->restartSize/2 && x>cam.gui->restartX  && y<cam.gui->restartY+cam.gui->restartSize/2 && y>cam.gui->restartY)
-			{
-				gameState=MENU;
-			}
-	}
-
-	// Mouse no botão de sair
-	if(gameState == QUIT)
-	{
-		// YES
-		   	if(x<cam.gui->quitX && x>cam.gui->quitX-cam.gui->quitSize/2 && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
-			{
-				saveGame();
-				gameState = MENU;
-			}
-		// NO
-			else if(x<cam.gui->quitX+cam.gui->quitSize/2 && x>cam.gui->quitX  && y<cam.gui->quitY+cam.gui->quitSize/2 && y>cam.gui->quitY)
-			{
-				cam.gui->quit=false;
-				gameState=GAME_0;
-			}
-	}
-}
 void off_shade(bool canDraw) // Efeito de "escurecer a tela"
 {
 	glColor4f(0,0,0,0.5);
@@ -557,7 +615,7 @@ void draw_callback(void){
 	        drawText(GLUT_BITMAP_HELVETICA_18,str,WIDTH/2-100,3.8*HEIGHT/5);
 	        for(int x=0;x<5;x++)
 	        {
-	        	sprintf(str,"Fulano %d \t\t\t\t\t\t\t\t\t\t\t\t\t %d",x,top_player_scores[x]);
+	        	sprintf(str,"%d - %s \t\t\t\t\t\t\t\t\t\t\t\t\t %d",x,top_player_names[x].c_str(),top_player_scores[x]);
 	        	drawText(GLUT_BITMAP_HELVETICA_18,str,300,500-x*100);	
 			}
 		}
@@ -596,6 +654,12 @@ void draw_callback(void){
     		// Desenha menu inicial
     		glColor4f(1,1,1,1);
     		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH*1.5,HEIGHT,true,textureMenu[menuSelection]);
+
+    		if(word_input)
+    		{
+    			glColor4f(1,1,1,1);
+    			drawText(GLUT_BITMAP_HELVETICA_18,name.c_str(),WIDTH/2+300,HEIGHT/2);
+    		}
     		// Desenhar splash screen
     		if(first_time_splash)
 	    	{

@@ -11,7 +11,7 @@
 #define MAP_BORDERX 8000
 #define MAP_BORDERY 4000
 #define FPS 30
-#define MAX_COLLECTABLES 50
+#define MAX_COLLECTABLES 65
 
 #define UP 1
 #define DOWN -1
@@ -53,7 +53,7 @@ bool contraryDir(bool keyState[]) // Função que talvez auxilie em trazer o car
 	if(bottom_wall) return (!keyState['s'] && keyState['w']);
 }
 
-void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int *gameState, Mix_Chunk **sfx)
+void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int *gameState, Mix_Chunk **sfx, bool &word_input)
 {
 
 	// Sair do jogo

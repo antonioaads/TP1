@@ -7,21 +7,14 @@ void initObj(Collectable **objArray,int max_colllectables,double map_border)
 {
 	for(int x=0;x<max_colllectables;x++)
 	{
-		switch(x % COLLECTABLE_TYPE_COUNT)
-		{
-			case PIXIE:
-				objArray[x] = new Pixie(map_border);
-			break;
-			case DEMON:
-				objArray[x] = new Demon(map_border);
-			break;
-			case MIKO:
-				objArray[x] = new Miko(map_border);
-			break;
-			case KITSUNE:
-				objArray[x] = new Kitsune(map_border);
-			break;
-		}
+		if(x < max_colllectables*3/10)
+			objArray[x] = new Pixie(map_border);
+		else if(x < max_colllectables*4/10)
+			objArray[x] = new  Kitsune(map_border);
+		else if(x < max_colllectables*5/10)
+			objArray[x] = new Miko(map_border);
+		else
+			objArray[x] = new Demon(map_border);
 	}
 }
 
