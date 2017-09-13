@@ -95,6 +95,7 @@ using namespace std;
     GLuint textureHelp;
     GLuint textureCredits;
     GLuint textureBackButton;
+    GLuint textureChangeName;
 
 void importTextures() 	// Faz o que o nome sugere =D
 {
@@ -133,6 +134,7 @@ void importTextures() 	// Faz o que o nome sugere =D
     textureHelp = SOIL_load_OGL_texture("tex/help.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCredits = SOIL_load_OGL_texture("tex/credits.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureBackButton = SOIL_load_OGL_texture("tex/xbutton.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureChangeName = SOIL_load_OGL_texture("tex/changename.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
 
     if (texturePlayer == 0) 
       printf("Erro do SOIL: '%s'\n", SOIL_last_result());
@@ -159,7 +161,6 @@ void init(){
     {
     	arquivoP >> top_player_scores[x];
     	arquivoN >> top_player_names[x];
-    	printf("topplayernames-%d = %s\n", x, top_player_names[x].c_str());
     }
     arquivoP.close();
     arquivoN.close();
@@ -183,7 +184,6 @@ void saveGame()
 		{
 			arquivoP << top_player_scores[x] << endl;
 			arquivoN << top_player_names[x].c_str() << endl;
-			printf("SALVEI - %s\n",top_player_names[x].c_str());
 		}
 		arquivoP.close();
 		arquivoN.close();
@@ -344,11 +344,8 @@ void mouse_callback(int button, int state, int x, int y)
 				gameState=MENU;
 			}
 
-			if(Mix_Playing(3))
-			{
-				Mix_HaltChannel(-1);
-				Mix_ResumeMusic();
-			}
+			Mix_HaltChannel(2);
+			Mix_ResumeMusic();
 	}
 
 	// Mouse no botão de sair
@@ -447,7 +444,6 @@ void stateMachine()
         	if(p1.canSave)
         	{
         		// Garantir que esteja organizado o vetor de pontuação em ordem crescente
-        		//printf("Fadd o nome: %s\n",name.c_str());
         		for(int x=0;x<5;x++)
 				{
 					for(int y=0;y<4;y++)
@@ -466,8 +462,6 @@ void stateMachine()
 					}
 				}
 
-				printf("Gadd o nome: %s\n",name.c_str());
-
 				// Inserir no vetor garantindo organização
         		for(int x=0; x<5;x++) // ERRO (INVADINDO MEMORIA) (CORRIGIDO)
         		{
@@ -477,18 +471,10 @@ void stateMachine()
         				for(int y=4;y>x && y>0;y--)
         				{
         					top_player_scores[y]=top_player_scores[y-1];
-        					// s.push_back(top_player_names[y-1]);
-        					// top_player_names[y]=s;
-        					//printf("topname-%d = %s\n", y, top_player_names[y].c_str() );
-        					//printf("topname-%d = %s\n", y-1, top_player_names[y-1].c_str() );
         					top_player_names[y] = top_player_names[y-1];
-        					//printf("topname-%d = %s\n", y, top_player_names[y].c_str() );
-        					//printf("topname-%d = %s\n", y-1, top_player_names[y-1].c_str() );
         				}
-        				//printf("Madd o nome: %s\n",name.c_str());
         				top_player_scores[x] = p1.points;
         				top_player_names[x] = name;
-        				printf("add o nome: %s\n",name.c_str());
         				break;
         			}
         		}
@@ -635,9 +621,11 @@ void draw_callback(void){
 	    	// Fundo
 	    	glColor4d(1,1,1,1);
 	    	drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureHelp);
+	    	drawOverlay(100,35,0,200,100,true,textureBackButton);
 	    break;
 
 	    case CREDITS_MENU:
+	    {
 	    	// Fundo
 	    	glColor4d(1,1,1,1);
 	    	drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureCredits);
@@ -658,24 +646,26 @@ void draw_callback(void){
 	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-350);
 	        sprintf(str,"                 Jiraya Theme from Naruto");
 	        drawText(GLUT_BITMAP_HELVETICA_18,str,200,3.8*HEIGHT/5-400);
+	    }
 	    break;
 
     	case MENU:
+    	{
     		// Desenha menu inicial
     		glColor4f(1,1,1,1);
     		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH*1.5,HEIGHT,true,textureMenu[menuSelection]);
-
-    		if(word_input)
-    		{
-    			glColor4f(1,1,1,1);
-    			drawText(GLUT_BITMAP_HELVETICA_18,name.c_str(),WIDTH/2+300,HEIGHT/2);
-    		}
+    		drawOverlay(WIDTH-150,100,0,200,100,true,textureChangeName);
+    		glColor4f(1,1,0.5,1);
+    		char str[100];
+	        sprintf(str,"ID: %s",name.c_str());
+	        drawText(GLUT_BITMAP_HELVETICA_18,str,WIDTH-200,150);
     		// Desenhar splash screen
     		if(first_time_splash)
 	    	{
 	    		glColor4f(1,1,1,splash_alpha);
 	    		drawOverlay(WIDTH/2,HEIGHT/2,0,WIDTH,HEIGHT,true,textureSplash);
     		}
+    	}
     	break;
 
     	case QUIT:	// Como quero que fique desenhado por baixo o último estado do jogo

@@ -257,9 +257,9 @@ void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objA
 				bottom_wall=true;
 
 		// Interromper movimento nas paredes do mundo
-			if((right_wall && keyState['d']) || (left_wall && keyState['a']))
+			if((right_wall && p1->vx > 0) || (left_wall && p1->vx < 0))
 				p1->vx=0;
-			if((top_wall && keyState['w']) || (bottom_wall && keyState['s']))
+			if((top_wall && p1->vy > 0) || (bottom_wall && p1->vy < 0))
 				p1->vy=0;
 
 		// Passar a movimentação do player para a camera
