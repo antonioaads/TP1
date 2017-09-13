@@ -53,7 +53,7 @@ bool contraryDir(bool keyState[]) // Função que talvez auxilie em trazer o car
 	if(bottom_wall) return (!keyState['s'] && keyState['w']);
 }
 
-void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int *gameState, Mix_Chunk **sfx, bool &word_input)
+void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int *gameState, Mix_Chunk **sfx)
 {
 
 	// Sair do jogo

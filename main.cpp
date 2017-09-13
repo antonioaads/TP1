@@ -62,12 +62,11 @@ using namespace std;
 // Vetor de nomes dos 5 melhores jogadores
 	string top_player_names[5];
 	string name;
-
-// Controle da callback para a glutKeyboardFunc quando em estado DEAD
-	bool word_input=false;
-
 // Vetor de pontuação dos 
 	int top_player_scores[5];
+
+// Controle da callback para a glutKeyboardFunc
+	bool word_input=false;
 
 // Inicializar variavel
     bool keyState[300];
@@ -131,12 +130,46 @@ void importTextures() 	// Faz o que o nome sugere =D
     textureMenu[EXIT] = SOIL_load_OGL_texture("tex/menuEXIT.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureSplash = SOIL_load_OGL_texture("tex/splash.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureSideFace = SOIL_load_OGL_texture("tex/sideface.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
-    textureHelp = SOIL_load_OGL_texture("tex/sideface.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
+    textureHelp = SOIL_load_OGL_texture("tex/help.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureCredits = SOIL_load_OGL_texture("tex/credits.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
     textureBackButton = SOIL_load_OGL_texture("tex/xbutton.png",SOIL_LOAD_AUTO,SOIL_CREATE_NEW_ID,SOIL_FLAG_INVERT_Y);
 
     if (texturePlayer == 0) 
       printf("Erro do SOIL: '%s'\n", SOIL_last_result());
+}
+
+void init(){
+    // Definir cor da borracha
+    glClearColor(1,1,1,1);
+
+    // Inicializa objetos
+    initObj(objArray,MAX_COLLECTABLES,(double)MAP_BORDERY);
+
+    // Zerar strings
+    for(int x=0;x<5;x++)
+    {
+    	top_player_names[x]="";
+    }
+
+    // Carregar Melhores Pontuações
+    ifstream arquivoP,arquivoN;
+    arquivoP.open("top_score.txt");
+    arquivoN.open("top_names.txt");
+    for(int x=0; x<5; x++)
+    {
+    	arquivoP >> top_player_scores[x];
+    	arquivoN >> top_player_names[x];
+    	printf("topplayernames-%d = %s\n", x, top_player_names[x].c_str());
+    }
+    arquivoP.close();
+    arquivoN.close();
+
+    // Importa texturas
+    importTextures();
+
+    // Ativar blending
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 }
 
 void saveGame()
@@ -160,34 +193,6 @@ void exitFromGame()
 {
 	saveGame();
 	exit(0);
-}
-
-void init(){
-    // Definir cor da borracha
-    glClearColor(1,1,1,1);
-
-    // Inicializa objetos
-    initObj(objArray,MAX_COLLECTABLES,(double)MAP_BORDERY);
-
-    // Carregar Melhores Pontuações
-    ifstream arquivoP,arquivoN;
-    arquivoP.open("top_score.txt");
-    arquivoN.open("top_names.txt");
-    for(int x=0; x<5; x++)
-    {
-    	arquivoP >> top_player_scores[x];
-    	arquivoN >> top_player_names[x];
-    	printf("topplayernames-%d = %s\n", x, top_player_names[x]);
-    }
-    arquivoP.close();
-    arquivoN.close();
-
-    // Importa texturas
-    importTextures();
-
-    // Ativar blending
-    glEnable( GL_BLEND );
-    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 }
 
 void reshape_callback(int w,int h){
@@ -338,6 +343,12 @@ void mouse_callback(int button, int state, int x, int y)
 			{
 				gameState=MENU;
 			}
+
+			if(Mix_Playing(3))
+			{
+				Mix_HaltChannel(-1);
+				Mix_ResumeMusic();
+			}
 	}
 
 	// Mouse no botão de sair
@@ -362,7 +373,7 @@ void key_input_name(unsigned char key, int x,int y)
 {
 	if(key != 13 && key !=  8)
 		name += key;
-	else if(key == 8)
+	else if(key == 8 && !name.empty())
 		name.pop_back();
 	else
 		word_input=false;
@@ -370,8 +381,6 @@ void key_input_name(unsigned char key, int x,int y)
 
 void stateMachine()
 {
-	cout << name << endl;
-
 	if(first_time_splash)
 	{
 		splash_vel+=1/(10000-splash_accel*splash_accel);
@@ -387,11 +396,13 @@ void stateMachine()
 		if(!Mix_Playing(2))
 			Mix_ResumeMusic();
 
+	//cout << (word_input ? "true" : "false") << endl;
+
 	// Define input como controle ou palavras
 	if(word_input)
 		glutKeyboardFunc(key_input_name);
 	else
-		glutKeyboardFunc(key_press_callback);  
+		glutKeyboardFunc(key_press_callback);
 
     switch(gameState)
     {
@@ -436,8 +447,7 @@ void stateMachine()
         	if(p1.canSave)
         	{
         		// Garantir que esteja organizado o vetor de pontuação em ordem crescente
-        		printf("Fadd o nome: %s\n",name.c_str());
-
+        		//printf("Fadd o nome: %s\n",name.c_str());
         		for(int x=0;x<5;x++)
 				{
 					for(int y=0;y<4;y++)
@@ -459,23 +469,23 @@ void stateMachine()
 				printf("Gadd o nome: %s\n",name.c_str());
 
 				// Inserir no vetor garantindo organização
-        		for(int x=0; x<=5;x++)
+        		for(int x=0; x<5;x++) // ERRO (INVADINDO MEMORIA) (CORRIGIDO)
         		{
         			if(p1.points > top_player_scores[x])
         			{
         				// Arredar para a esquerda todos os nomes/pontuações
-        				for(int y=5;y>x;y--)
+        				for(int y=4;y>x && y>0;y--)
         				{
         					top_player_scores[y]=top_player_scores[y-1];
         					// s.push_back(top_player_names[y-1]);
         					// top_player_names[y]=s;
-        					printf("topname-%d = %s\n", y, top_player_names[y] );
-        					printf("topname-%d = %s\n", y-1, top_player_names[y-1] );
+        					//printf("topname-%d = %s\n", y, top_player_names[y].c_str() );
+        					//printf("topname-%d = %s\n", y-1, top_player_names[y-1].c_str() );
         					top_player_names[y] = top_player_names[y-1];
-        					printf("topname-%d = %s\n", y, top_player_names[y] );
-        					printf("topname-%d = %s\n", y-1, top_player_names[y-1] );
+        					//printf("topname-%d = %s\n", y, top_player_names[y].c_str() );
+        					//printf("topname-%d = %s\n", y-1, top_player_names[y-1].c_str() );
         				}
-        				printf("Madd o nome: %s\n",name.c_str());
+        				//printf("Madd o nome: %s\n",name.c_str());
         				top_player_scores[x] = p1.points;
         				top_player_names[x] = name;
         				printf("add o nome: %s\n",name.c_str());
@@ -494,7 +504,7 @@ void stateMachine()
         
         case GAME_0:
             // Physics
-                calculatePhysics(&p1, &cam, keyState, objArray, &gameState, sfx, word_input);
+                calculatePhysics(&p1, &cam, keyState, objArray, &gameState, sfx);
             // Animation Handling
                 // Player
                 	// Selecionar qual tipo de movimentação do player
@@ -615,7 +625,7 @@ void draw_callback(void){
 	        drawText(GLUT_BITMAP_HELVETICA_18,str,WIDTH/2-100,3.8*HEIGHT/5);
 	        for(int x=0;x<5;x++)
 	        {
-	        	sprintf(str,"%d - %s \t\t\t\t\t\t\t\t\t\t\t\t\t %d",x,top_player_names[x].c_str(),top_player_scores[x]);
+	        	sprintf(str,"%dº - %s ................................................ %d",x+1,top_player_names[x].c_str(),top_player_scores[x]);
 	        	drawText(GLUT_BITMAP_HELVETICA_18,str,300,500-x*100);	
 			}
 		}

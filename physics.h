@@ -8,7 +8,7 @@
 /**************************/
 // your stuff goes here
 // function prototypes, etc.
-	void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int *gameState, Mix_Chunk **sfx, bool &word_input);
+	void calculatePhysics(Player *p1, Camera *cam,bool keyState[],Collectable **objArray, int *gameState, Mix_Chunk **sfx);
 	void reset(Player *p1, Camera *cam, Collectable **objArray);
 	double modulo(double x);
 // classes
