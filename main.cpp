@@ -785,7 +785,7 @@ int main(int argc, char** argv){
         glutInitWindowSize(WIDTH, HEIGHT);
         glutInitWindowPosition(100, 100);
 
-        glutCreateWindow("Jogo top");
+        glutCreateWindow("KENSEI.io");
         init();
 
     // Setar callbacks
